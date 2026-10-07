@@ -1,0 +1,90 @@
+html {
+  overflow: hidden !important;
+  background: #fafafa !important;
+  color: #23282d !important;
+}
+html[data-theme="dark"] {
+  background: #282e34 !important;
+  color: #e8ecef !important;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="auto"] {
+    background: #282e34 !important;
+    color: #e8ecef !important;
+    color-scheme: dark;
+  }
+}
+body {
+  margin: 0 !important;
+  padding: 32px !important;
+  overflow: hidden !important;
+}
+#reader-body {
+  height: calc(100vh - 64px) !important;
+  width: calc(100vw - 64px) !important;
+  column-width: calc(100vw - 64px) !important;
+  column-gap: 64px !important;
+  column-fill: auto !important;
+  font:
+    20px/2 "Yu Mincho",
+    "Hiragino Mincho ProN",
+    serif !important;
+}
+#reader-body,
+#reader-body * {
+  writing-mode: horizontal-tb !important;
+  direction: ltr !important;
+  color: inherit !important;
+  background-color: transparent !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+#reader-body h1,
+#reader-body h2 {
+  font-size: 30px !important;
+  line-height: 1.6 !important;
+}
+#reader-body p {
+  margin: 0 0 1em;
+}
+#reader-body pre {
+  white-space: pre-wrap !important;
+}
+#reader-body img {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: calc(100vh - 64px) !important;
+  object-fit: contain !important;
+  break-inside: avoid !important;
+  margin: 0 !important;
+}
+#reader-body ruby {
+  ruby-position: over;
+}
+#reader-body rt {
+  font-size: 0.5em !important;
+}
+@media (max-width: 850px) {
+  body {
+    padding: 20px !important;
+  }
+  #reader-body {
+    height: calc(100vh - 40px) !important;
+    width: calc(100vw - 40px) !important;
+    column-width: calc(100vw - 40px) !important;
+    column-gap: 40px !important;
+    font-size: 18px !important;
+  }
+  #reader-body h1,
+  #reader-body h2 {
+    font-size: 26px !important;
+  }
+  #reader-body img {
+    max-height: calc(100vh - 40px) !important;
+  }
+}
