@@ -18,7 +18,30 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline' book: http://book.localhost https://book.localhost",
+        "img-src": "'self' data: book: http://book.localhost https://book.localhost",
+        "connect-src": "'self' ipc: http://ipc.localhost book: http://book.localhost https://book.localhost",
+        "font-src": "'self'",
+        "frame-src": "'self'",
+        "object-src": "'none'",
+        "base-uri": "'self' book: http://book.localhost https://book.localhost",
+        "form-action": "'none'"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'unsafe-inline'",
+        "style-src": "'self' 'unsafe-inline' book: http://book.localhost https://book.localhost",
+        "img-src": "'self' data: book: http://book.localhost https://book.localhost",
+        "connect-src": "'self' ipc: http://ipc.localhost book: http://book.localhost https://book.localhost ws://localhost:1420 ws://localhost:1421",
+        "font-src": "'self'",
+        "frame-src": "'self'",
+        "object-src": "'none'",
+        "base-uri": "'self' book: http://book.localhost https://book.localhost",
+        "form-action": "'none'"
+      }
     }
   },
   "bundle": {
