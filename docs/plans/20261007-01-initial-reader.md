@@ -1,7 +1,7 @@
 # 初回の EPUB 読書機能の実装計画
 
 - 計画承認日：2026-10-07。
-- 状態：単位1は [PR #1](https://github.com/ta2ro013/refined-epub-reader/pull/1)、単位2は [PR #2](https://github.com/ta2ro013/refined-epub-reader/pull/2) でマージ済み。単位3はページ送り方式・画面デザイン・[詳細計画（03）](20261007-03-reader-display.md) が承認済み。単位3Aは [PR #3](https://github.com/ta2ro013/refined-epub-reader/pull/3)、単位3Bは [PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) でマージ済み。単位3Cは開始承認を得て画面接続の実装・自動検証を完了し、人間のレビュー承認済み・PR作成待ち。Windows実アプリ確認は未検証で、単位3全体の完了条件は未達。単位4は未着手。
+- 状態：単位1は [PR #1](https://github.com/ta2ro013/refined-epub-reader/pull/1)、単位2は [PR #2](https://github.com/ta2ro013/refined-epub-reader/pull/2) でマージ済み。単位3はページ送り方式・画面デザイン・[詳細計画（03）](20261007-03-reader-display.md) が承認済み。単位3Aは [PR #3](https://github.com/ta2ro013/refined-epub-reader/pull/3)、単位3Bは [PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) でマージ済み。単位3Cは開始承認を得て画面接続の実装・自動検証を完了し、人間のレビュー承認済み。[PR #6](https://github.com/ta2ro013/refined-epub-reader/pull/6) を作成済み・未マージ。Windows実アプリ確認は未検証で、単位3全体の完了条件は未達。単位4は未着手。
 - 初回対象：Windows、横書きのリフロー型 EPUB。
 - 各開発単位について個別に承認・実装・レビューを行う。
 
@@ -118,4 +118,4 @@ UI は読書画面のサンプルを提示してレビューし、合意した�
 
 - 単位3A（書籍提供）と単位3B（ページ分割）はマージ済み。単位3Cはユーザーの開始承認後、書籍選択から本文表示・ページ操作・状態とエラー案内まで接続した。
 - 単体30件・表示部品のChromiumテスト14件、型チェック・本番ビルドが成功した。実ブラウザでの画面接続確認はIPCを差し替えた検証であり、実アプリ連携を検証済みとは扱わない。
-- Linux実アプリはビルド成功後にGTK初期化で起動失敗。Windowsの標準ダイアログ・WebView2と実アプリの確認は未検証で、単位3全体の完了条件は未達。人間のレビュー承認は完了し、誤判定修正（PR #5）のmain統合を確認し、PR作成段階に進んだ。検証の詳細とWindowsの再実行手順は [詳細計画（03）](20261007-03-reader-display.md) に記録した。
+- Linux実アプリはビルド成功後にGTK初期化で起動失敗。Windowsの標準ダイアログ・WebView2と実アプリの確認は未検証で、単位3全体の完了条件は未達。人間のレビュー承認は完了し、誤判定修正（PR #5）のmain統合を確認し、[PR #6](https://github.com/ta2ro013/refined-epub-reader/pull/6) を作成した。検証の詳細とWindowsの再実行手順は [詳細計画（03）](20261007-03-reader-display.md) に記録した。
