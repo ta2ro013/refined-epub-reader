@@ -1,3 +1,10 @@
+pub mod book;
+
+#[cfg(test)]
+mod book_test_support;
+#[cfg(test)]
+mod book_tests;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
