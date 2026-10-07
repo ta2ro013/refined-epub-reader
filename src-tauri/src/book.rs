@@ -157,7 +157,7 @@ impl<R: Read + Seek> Book<R> {
         }
         for node in xml.descendants().filter(|node| node.is_element()) {
             if node.attribute("style").is_some_and(vertical_css)
-                || (node.has_tag_name("style") && vertical_css(&node_text(node)))
+                || (node.has_tag_name("style") && vertical_stylesheet(&node_text(node), &xml))
             {
                 return Err(BookError::Unsupported);
             }
@@ -175,7 +175,7 @@ impl<R: Read + Seek> Book<R> {
         for path in css_paths {
             let css =
                 String::from_utf8(self.resource(&path)?.bytes).map_err(|_| BookError::Invalid)?;
-            if vertical_css(&css) {
+            if vertical_stylesheet(&css, &xml) {
                 return Err(BookError::Unsupported);
             }
         }
@@ -183,7 +183,7 @@ impl<R: Read + Seek> Book<R> {
     }
 }
 
-fn vertical_css(css: &str) -> bool {
+fn css_without_comments(css: &str) -> String {
     let mut without_comments = String::new();
     let mut remaining = css;
     while let Some((before, comment)) = remaining.split_once("/*") {
@@ -196,7 +196,14 @@ fn vertical_css(css: &str) -> bool {
     }
     without_comments.push_str(remaining);
     without_comments
-        .to_ascii_lowercase()
+}
+
+fn vertical_css(css: &str) -> bool {
+    vertical_declarations(&css_without_comments(css))
+}
+
+fn vertical_declarations(css: &str) -> bool {
+    css.to_ascii_lowercase()
         .split([';', '{', '}'])
         .any(|declaration| {
             declaration
@@ -211,6 +218,96 @@ fn vertical_css(css: &str) -> bool {
                     )
                 })
         })
+}
+
+// Only exempt selectors whose absence can be established without a CSS engine.
+// Unknown selectors, nesting and malformed rules retain the previous rejection.
+fn unused_class_selector(selector: &str, xml: &Document<'_>) -> bool {
+    let Some((tag, classes)) = selector.trim().split_once('.') else {
+        return false;
+    };
+    let identifier = |value: &str| {
+        !value.is_empty()
+            && value
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+            && !value.starts_with(|c: char| c.is_ascii_digit())
+    };
+    if (!tag.is_empty() && !identifier(tag)) || !classes.split('.').all(identifier) {
+        return false;
+    }
+    !xml.descendants()
+        .filter(|node| node.is_element())
+        .any(|node| {
+            (tag.is_empty() || node.tag_name().name() == tag)
+                && classes.split('.').all(|class| {
+                    node.attribute("class")
+                        .unwrap_or("")
+                        .split_whitespace()
+                        .any(|value| value == class)
+                })
+        })
+}
+
+// Braces inside strings are not rule boundaries. Escaped identifiers are never
+// exempted by unused_class_selector, so their interpretation stays conservative.
+fn css_brace(css: &str, closing: bool) -> Option<usize> {
+    let mut quote = None;
+    let mut escaped = false;
+    let mut depth = 1usize;
+    for (index, c) in css.char_indices() {
+        if escaped {
+            escaped = false;
+            continue;
+        }
+        if c == '\\' {
+            escaped = true;
+            continue;
+        }
+        if let Some(active) = quote {
+            if c == active {
+                quote = None;
+            }
+            continue;
+        }
+        if c == '\'' || c == '"' {
+            quote = Some(c);
+        } else if c == '{' {
+            if !closing {
+                return Some(index);
+            }
+            depth += 1;
+        } else if c == '}' && closing {
+            depth -= 1;
+            if depth == 0 {
+                return Some(index);
+            }
+        }
+    }
+    None
+}
+
+fn vertical_stylesheet(css: &str, xml: &Document<'_>) -> bool {
+    let css = css_without_comments(css);
+    let mut remaining = css.as_str();
+    while let Some(open) = css_brace(remaining, false) {
+        let selector = remaining[..open].rsplit(';').next().unwrap_or("").trim();
+        let body = &remaining[open + 1..];
+        let Some(close) = css_brace(body, true) else {
+            return vertical_declarations(remaining);
+        };
+        let declarations = &body[..close];
+        if vertical_declarations(declarations)
+            && (css_brace(declarations, false).is_some()
+                || !selector
+                    .split(',')
+                    .all(|selector| unused_class_selector(selector, xml)))
+        {
+            return true;
+        }
+        remaining = &body[close + 1..];
+    }
+    vertical_declarations(remaining)
 }
 
 fn validate_toc<R: Read + Seek>(entries: &[TocEntry], doc: &EpubDoc<R>) -> Result<(), BookError> {

@@ -391,3 +391,69 @@ fn rejects_vertical_css_with_a_percent_encoded_stylesheet_path() {
     let mut book = Book::from_reader(Cursor::new(fixture.bytes())).unwrap();
     assert_eq!(book.chapter(0), Err(BookError::Unsupported));
 }
+
+#[test]
+fn accepts_unused_vertical_class_rules_in_shared_css() {
+    for version in ["2.0", "3.0"] {
+        for css in [
+            ".hltr { writing-mode: horizontal-tb; } .vrtl { writing-mode: vertical-rl; }",
+            "html.vrtl, body.vrtl { -epub-writing-mode: vertical-rl; }",
+        ] {
+            let mut fixture = Fixture::new(version);
+            fixture
+                .extra_manifest
+                .push_str(r#"<item id="css" href="shared.css" media-type="text/css"/>"#);
+            fixture
+                .entries
+                .push(("OPS/shared.css".into(), css.as_bytes().to_vec()));
+            let expected = String::from_utf8(fixture.entries[0].1.clone()).unwrap();
+            let mut book = Book::from_reader(Cursor::new(fixture.bytes())).unwrap();
+            assert_eq!(book.chapter(0), Ok(expected), "{version}: {css}");
+        }
+    }
+}
+
+#[test]
+fn accepts_unused_vertical_class_rules_in_style_elements() {
+    let mut fixture = Fixture::new("3.0");
+    let xhtml = r#"<html xmlns="http://www.w3.org/1999/xhtml"><head><style>.vrtl { writing-mode: vertical-rl; }</style></head><body><p>Horizontal</p></body></html>"#;
+    fixture.entries[0].1 = xhtml.as_bytes().to_vec();
+    let mut book = Book::from_reader(Cursor::new(fixture.bytes())).unwrap();
+    assert_eq!(book.chapter(0), Ok(xhtml.to_string()));
+}
+
+#[test]
+fn keeps_rejecting_applied_and_complex_vertical_rules() {
+    for (class, css) in [
+        ("vrtl", ".vrtl { writing-mode: vertical-rl; }"),
+        ("vrtl", "body.vrtl { -epub-writing-mode: vertical-lr; }"),
+        ("vrtl extra", ".vrtl.extra { writing-mode: vertical-rl; }"),
+        (
+            "vrtl",
+            ".vrtl { content: \"}\"; writing-mode: vertical-rl; }",
+        ),
+        ("", ".unused, body { writing-mode: vertical-rl; }"),
+        ("", "body:not(.vrtl) { writing-mode: vertical-rl; }"),
+        (
+            "",
+            "@media screen { .unused { writing-mode: vertical-rl; } }",
+        ),
+        ("", ".unused { & { writing-mode: vertical-rl; } }"),
+        ("", ".unused { writing-mode: vertical-rl;"),
+    ] {
+        let mut fixture = Fixture::new("3.0");
+        fixture.entries[0].1 = format!(r#"<html xmlns="http://www.w3.org/1999/xhtml"><body class="{class}"><p>Text</p></body></html>"#).into_bytes();
+        fixture
+            .extra_manifest
+            .push_str(r#"<item id="css" href="shared.css" media-type="text/css"/>"#);
+        fixture
+            .entries
+            .push(("OPS/shared.css".into(), css.as_bytes().to_vec()));
+        let mut book = Book::from_reader(Cursor::new(fixture.bytes())).unwrap();
+        assert_eq!(
+            book.chapter(0),
+            Err(BookError::Unsupported),
+            "{class}: {css}"
+        );
+    }
+}
