@@ -1,0 +1,97 @@
+# サンドボックス外のコマンド許可ルール。未一致は既存の承認ポリシーに従う。
+# 信頼済みのプロジェクト設定で読み込まれる。変更後は Codex を再起動する。
+# コマンド実行の許可とは別に、開発フロー上の承認手順に従う。
+# 以下は列挙したパスを先頭の引数に渡す直接読み込みだけを禁止する。
+# prefix_rule はパスの glob や全ファイルアクセスの遮断には対応しない。
+# オプション付き、別の引数位置、別ツール、サンドボックス内の読み込みまで
+# 一律に遮断するものではないため、AGENTS.md の禁止指示も併用する。
+prefix_rule(
+    pattern = [["cat", "less", "more", "head", "tail"], [
+        ".env", "./.env",
+        ".env.local", "./.env.local",
+        ".env.development", "./.env.development",
+        ".env.development.local", "./.env.development.local",
+        ".env.production", "./.env.production",
+        ".env.production.local", "./.env.production.local",
+        ".env.test", "./.env.test",
+        ".env.test.local", "./.env.test.local",
+        "/home/tatsuro/codex-projects/refined-epub-reader/.env",
+    ]],
+    decision = "forbidden",
+    justification = "API キーなどの機密情報を含む環境設定ファイルの直接読み込みを禁止する。",
+    match = ["cat .env", "cat ./.env.local", "head .env.production", "less /home/tatsuro/codex-projects/refined-epub-reader/.env"],
+    not_match = ["cat README.md", "cat .env.example", "cat -n .env"],
+)
+prefix_rule(
+    pattern = ["git", "push", "origin", "HEAD"],
+    decision = "allow",
+    justification = "現在の作業ブランチを origin へ push するため。",
+    match = ["git push origin HEAD"],
+    not_match = ["git push --force origin main", "git push origin --delete main"],
+)
+prefix_rule(
+    pattern = ["git", "push", "-u", "origin", "HEAD"],
+    decision = "allow",
+    justification = "現在の作業ブランチを push し、追跡先を設定するため。",
+    match = ["git push -u origin HEAD"],
+    not_match = ["git push --force origin main"],
+)
+prefix_rule(
+    pattern = ["gh", "pr", ["create", "view", "list", "diff", "checks", "status"]],
+    decision = "allow",
+    justification = "GitHub CLI で PR を作成し、内容と検証結果を確認するため。",
+    match = ["gh pr create --title example --body-file /tmp/pr-body.md", "gh pr view", "gh pr checks"],
+    not_match = ["gh pr merge", "gh pr close", "gh repo delete"],
+)
+prefix_rule(
+    pattern = ["gh", "repo", "view"],
+    decision = "allow",
+    justification = "GitHub リポジトリの情報を確認するため。",
+    match = ["gh repo view"],
+    not_match = ["gh repo delete"],
+)
+prefix_rule(
+    pattern = ["git", "status"],
+    decision = "allow",
+    justification = "作業ツリーの状態を確認するため。",
+    match = ["git status --short"],
+    not_match = ["git add .", "git push"],
+)
+prefix_rule(
+    pattern = ["git", "--no-pager", "log"],
+    decision = "allow",
+    justification = "ページャーを起動せず履歴を確認するため。",
+    match = ["git --no-pager log --oneline -10"],
+    not_match = ["git log"],
+)
+# 外部 diff / textconv の実行を無効にした形式だけ許可する。
+prefix_rule(
+    pattern = ["git", "--no-pager", ["diff", "show"], "--no-ext-diff", "--no-textconv"],
+    decision = "allow",
+    justification = "外部プログラムを起動せず差分やコミットを確認するため。",
+    match = ["git --no-pager diff --no-ext-diff --no-textconv --cached", "git --no-pager show --no-ext-diff --no-textconv HEAD"],
+    not_match = ["git diff --ext-diff", "git reset --hard"],
+)
+# package.json に定義されたスクリプトの実行も許可に含まれる。
+prefix_rule(
+    pattern = ["bun", "run", ["build", "test"]],
+    decision = "allow",
+    justification = "フロントエンドのビルドとテストを実行するため。",
+    match = ["bun run build", "bun run test --run"],
+    not_match = ["bun install", "bun run deploy", "npm run build"],
+)
+prefix_rule(
+    pattern = ["bun", "test"],
+    decision = "allow",
+    justification = "Bun のテストランナーでテストを実行するため。",
+    match = ["bun test", "bun test --watch"],
+    not_match = ["bun publish", "npm test"],
+)
+# 依存取得や build.rs、テストコードの実行も許可に含まれる。
+prefix_rule(
+    pattern = ["cargo", ["build", "check", "test"]],
+    decision = "allow",
+    justification = "Rust 側のビルド、型チェック、テストを実行するため。",
+    match = ["cargo build --manifest-path src-tauri/Cargo.toml", "cargo check --manifest-path src-tauri/Cargo.toml", "cargo test --manifest-path src-tauri/Cargo.toml"],
+    not_match = ["cargo run", "cargo install some-tool", "cargo publish"],
+)
