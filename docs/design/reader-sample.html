@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>読書画面の提案サンプル</title>
+  <style>
+    /* Proposal only. Native CSS editorial aesthetic, not an official Fluent UI implementation.
+       DESIGN_VARIANCE: 3; MOTION_INTENSITY: 1; VISUAL_DENSITY: 3.
+       Application controls use system sans; the reading sample uses Japanese serif. */
+    :root { color-scheme: light dark; --canvas: #f0f1f2; --paper: #fafafa; --ink: #23282d; --muted: #59636d; --line: #d8dde1; --accent: #215e53; --on-accent: #fafafa; --selection: #e0ece8; }
+    @media (prefers-color-scheme: dark) {
+      :root { --canvas: #20252a; --paper: #282e34; --ink: #e8ecef; --muted: #b4bec7; --line: #46515b; --accent: #9bd6c4; --on-accent: #20252a; --selection: #344b44; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 14px/1.6 "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif; }
+    .proposal { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .proposal h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    .proposal p { margin: 6px 0 16px; color: var(--muted); }
+    .choices { display: flex; gap: 12px 24px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+    label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    input { accent-color: var(--accent); }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .window { height: min(720px, 78dvh); min-height: 420px; display: grid; grid-template-rows: 64px minmax(0, 1fr) 36px; background: var(--paper); border: 1px solid var(--line); }
+    .toolbar { display: flex; align-items: center; gap: 20px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+    .book-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    button { font: inherit; font-weight: 600; color: var(--on-accent); background: var(--accent); border: 1px solid transparent; border-radius: 6px; padding: 8px 18px; white-space: nowrap; cursor: pointer; }
+    button:hover { text-decoration: underline; text-underline-offset: 3px; }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: wait; opacity: .65; text-decoration: none; }
+    .reading { overflow: hidden; min-height: 0; }
+    article { max-width: 36em; height: 100%; margin: 0 auto; padding: 32px; font: 20px/2 "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", serif; }
+    article h2 { margin: 0 0 24px; font: 600 30px/1.6 "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", serif; }
+    article p { margin: 0 0 1.5em; text-indent: 1em; }
+    article rt { font-size: .5em; }
+    article blockquote { margin: 32px 0; padding-left: 20px; border-left: 2px solid var(--line); }
+    .state { min-height: 100%; max-width: 520px; padding: 72px 24px; margin: auto; display: none; }
+    .state h2 { font-size: 24px; line-height: 1.5; margin: 0 0 12px; }
+    .state p { color: var(--muted); margin: 0 0 16px; }
+    .loading-lines { margin-top: 40px; display: grid; gap: 20px; }
+    .loading-lines span { height: 12px; background: var(--line); width: 100%; }
+    .loading-lines span:last-child { width: 65%; }
+    .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .window { grid-template-rows: 64px minmax(0, 1fr) 56px; min-height: 500px; }
+    .page-two, .navigation-two { display: none; }
+    .page-navigation { display: flex; align-items: center; gap: 20px; }
+    .page-navigation label { color: var(--accent); padding: 6px 8px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+    .page-navigation label:hover { background: var(--selection); }
+    .page-navigation button { color: var(--muted); background: none; cursor: default; padding: 6px 8px; font-weight: 400; font-size: 14px; }
+    .proposal:has(#page-two:checked) .page-one, .proposal:has(#page-two:checked) .navigation-one { display: none; }
+    .proposal:has(#page-two:checked) .page-two { display: block; }
+    .proposal:has(#page-two:checked) .navigation-two { display: flex; }
+    .proposal:has(#empty:checked) .page-navigation, .proposal:has(#loading:checked) .page-navigation, .proposal:has(#error:checked) .page-navigation { display: none; }
+    .notes { max-width: 1080px; padding: 0 24px 32px; margin: auto; color: var(--muted); }
+    .notes h2 { font-size: 16px; color: var(--ink); margin-top: 24px; }
+    .notes p { margin: 6px 0; }
+    .proposal:has(#empty:checked) .reading article, .proposal:has(#loading:checked) .reading article, .proposal:has(#error:checked) .reading article { display: none; }
+    .proposal:has(#empty:checked) .empty, .proposal:has(#loading:checked) .loading, .proposal:has(#error:checked) .error { display: block; }
+    .proposal:has(#empty:checked) .book-name, .proposal:has(#loading:checked) .book-name, .proposal:has(#error:checked) .book-name { visibility: hidden; }
+    .proposal:has(#empty:checked) .chapter-name, .proposal:has(#loading:checked) .chapter-name, .proposal:has(#error:checked) .chapter-name { visibility: hidden; }
+    .loading-button { display: none; }
+    .proposal:has(#loading:checked) .open-button { display: none; }
+    .proposal:has(#loading:checked) .loading-button { display: inline-block; }
+    @media (max-width: 767px) {
+      .proposal { padding: 16px; }
+      .window { min-height: 500px; }
+      .toolbar { padding: 0 16px; gap: 12px; }
+      article { padding: 24px 20px; font-size: 18px; }
+      article h2 { font-size: 26px; margin-bottom: 28px; }
+      .footer { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="proposal">
+    <h1>読書画面の提案サンプル</h1>
+    <p>2026-10-07 デザイン承認済み。横にページをめくる画面です。自作の本文を使ったサンプルで、実際の書籍を開く機能はありません。</p>
+    <div class="choices" role="group" aria-label="確認する画面の状態">
+      <label><input type="radio" id="reading" name="state" checked>本文</label>
+      <label><input type="radio" id="empty" name="state">未選択</label>
+      <label><input type="radio" id="loading" name="state">読み込み中</label>
+      <label><input type="radio" id="error" name="state">エラー</label>
+    </div>
+    <div class="choices" role="group" aria-label="サンプルのページ">
+      <span>本文のページ</span>
+      <label><input type="radio" id="page-one" name="page" checked>1ページ</label>
+      <label><input type="radio" id="page-two" name="page">2ページ</label>
+    </div>
+    <section class="window" aria-label="読書アプリの画面案">
+      <header class="toolbar">
+        <span class="book-name">小さな旅の記録</span>
+        <button class="open-button" type="button" aria-describedby="mock-button-note">書籍を開く</button>
+        <button class="loading-button" type="button" disabled>読み込み中</button>
+      </header>
+      <div class="reading" tabindex="0" aria-label="本文または読み込み状態">
+        <article class="page-one" lang="ja" aria-label="サンプル本文の1ページ目">
+          <h2>朝の道</h2>
+          <p>窓を開けると、夜の雨が残した空気が部屋に入ってきた。道の向こうには、まだ誰もいない公園が見える。私は本を閉じ、少し早く家を出た。</p>
+          <p>橋の手前で足を止める。水面に雲が映り、<ruby>欅<rt>けやき</rt></ruby>の葉から落ちた雫が、静かな輪を作っていた。</p>
+        </article>
+        <article class="page-two" lang="ja" aria-label="サンプル本文の2ページ目">
+          <blockquote>歩く速さを変えるだけで、いつもの道にも新しい場所が見つかる。</blockquote>
+          <p>川に沿って歩きながら、昨日読んだ一節を思い出した。言葉は本の中に置いてきたはずなのに、目の前の景色と重なって、また別の意味を持ちはじめている。</p>
+        </article>
+        <section class="state empty" aria-label="未選択の画面">
+          <h2>読む本を選ぶ</h2>
+          <p>「書籍を開く」から、EPUB ファイルを選んでください。</p>
+          <p>EPUB 2・3 の横書きリフロー型に対応します。</p>
+        </section>
+        <section class="state loading" aria-label="読み込み中の画面">
+          <h2>書籍を読み込んでいます</h2>
+          <p>本文を準備しています。</p>
+          <div class="loading-lines" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        </section>
+        <section class="state error" aria-label="エラーの画面">
+          <h2>この書籍を開けませんでした</h2>
+          <p>ファイルが破損しているか、EPUB の形式が正しくありません。</p>
+          <p>「書籍を開く」から別のファイルを選んでください。</p>
+        </section>
+      </div>
+      <footer class="footer">
+        <span class="chapter-name">朝の道</span>
+        <nav class="page-navigation navigation-one" aria-label="サンプルのページ移動">
+          <button type="button" disabled>前へ</button><span>1 / 2</span><label for="page-two">次へ</label>
+        </nav>
+        <nav class="page-navigation navigation-two" aria-label="サンプルのページ移動">
+          <label for="page-one">前へ</label><span>2 / 2</span><button type="button" disabled>次へ</button>
+        </nav>
+      </footer>
+    </section>
+  </main>
+  <aside class="notes" aria-label="提案の説明">
+    <h2>読みやすさを優先する案</h2>
+    <p>本文は明朝体20px・行間2、横幅は最大36em。操作部はOSのゴシック体。本文の背景は薄い灰白色、アクセントは深緑です。OSの設定に応じて暗色にも切り替わります。</p>
+    <p>本文は1画面ずつ表示し、「前へ・次へ」で切り替えます。実装では左右キーにも対応し、ウィンドウのサイズ変更時は読んでいた箇所を保ってページを組み直します。目次・章移動は後続の開発単位です。</p>
+    <p id="mock-button-note">「書籍を開く」は外観確認用です。ラジオボタンで状態を、下部の「前へ・次へ」で2ページを切り替えられます。サンプルの改ページ位置は固定で、自動ページ分割・左右キー・サイズ変更時の位置保持は実装前です。</p>
+  </aside>
+</body>
+</html>
