@@ -2,7 +2,7 @@
 
 - 作成日：2026-10-07。
 - 計画・本番用依存関係の追加承認日：2026-10-07。
-- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3AはTDDでの実装・自動検証と人間のレビューを経てマージ済み（ユーザー確認）。実アプリの確認は未検証。単位3BはTDDでの実装・自動検証と人間のレビュー承認を完了し、PR作成段階。単位3Cは未着手。
+- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3AはTDDでの実装・自動検証と人間のレビューを経てマージ済み（ユーザー確認）。実アプリの確認は未検証。単位3BはTDDでの実装・自動検証と人間のレビュー承認を完了し、[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み・未マージ。単位3Cは未着手。
 - 対象：Windows、DRM のない EPUB 2・3 の横書きリフロー型。
 - 承認済みの画面：[サンプル](../design/reader-sample.html)、[共通デザイン方針](../FRONTEND_DESIGN.md)。
 
@@ -175,7 +175,7 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 - [x] 単位3Aのマージ後、単位3Bの開始承認を得る。
 - [x] 単位3Bの表示部品とブラウザ検証をTDDで実装・自動検証する。
 - [x] 単位3Bの人間のレビューを受け、承認を得る。
-- [ ] 単位3BのPRを作成する。
+- [x] 単位3BのPRを作成する（[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4)）。
 - [ ] 単位3Bのマージ後、単位3Cの開始承認を得る。
 - [ ] 単位3Cの画面接続・操作・状態表示をTDDで実装・検証する。
 - [ ] Windowsでの確認結果と、残る未検証を記録する。
@@ -252,4 +252,4 @@ const css = await response.text();
 - 開発依存関係は `@playwright/test 1.63.0` に固定。対応するChromiumは `153.0.8010.12`（Playwright revision `1243`）。本番用依存関係は追加していない。
 - このLinux環境ではChromiumの共有ライブラリが不足し、公式 `install-deps` は管理者認証が必要で実行できなかった。必要なDebianパッケージを `/tmp` に取得・展開し、`LD_LIBRARY_PATH=/tmp/reader-browser-libs/usr/lib/x86_64-linux-gnu bun --no-env-file run test:browser` で実ブラウザ検証を実施した。システムのライブラリは変更していない。
 - 再実行は `bun --no-env-file install --frozen-lockfile`、`bun --no-env-file x playwright install chromium`、OSのChromium依存を準備したうえで `bun --no-env-file run test:browser` を使用する。fixtureは `/src/features/reader/page-fixture.html` で確認でき、本番のエントリーポイントには組み込まない。テスト出力は `/tmp/refined-epub-reader-playwright` に保存する。
-- WindowsのWebView2・Tauri実アプリとの接続と、Windowsの明朝体での表示は未検証。LinuxのChromium上の成功をWindowsの実機確認済みとは扱わない。ユーザーによる人間のレビュー承認は完了した。PR作成は次の段階で行う。
+- WindowsのWebView2・Tauri実アプリとの接続と、Windowsの明朝体での表示は未検証。LinuxのChromium上の成功をWindowsの実機確認済みとは扱わない。ユーザーによる人間のレビュー承認は完了した。[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み。マージは未実施。
