@@ -69,7 +69,7 @@ body {
 #reader-body rt {
   font-size: 0.5em !important;
 }
-@media (max-width: 850px) {
+@media (max-width: 760px) {
   body {
     padding: 20px !important;
   }
