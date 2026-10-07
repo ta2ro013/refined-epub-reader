@@ -20,6 +20,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 epub = "2.1.5"
@@ -35,4 +36,5 @@ panic = "abort"
 strip = true
 
 [dev-dependencies]
+tauri = { version = "2", features = ["test"] }
 zip = { version = "6", default-features = false, features = ["deflate"] }
