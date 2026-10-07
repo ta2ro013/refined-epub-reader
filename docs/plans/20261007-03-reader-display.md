@@ -2,7 +2,7 @@
 
 - 作成日：2026-10-07。
 - 計画・本番用依存関係の追加承認日：2026-10-07。
-- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3Aの実装・自動検証と人間のレビューが完了し、PR作成段階。実アプリの確認は未検証で、単位3A全体の完了条件は未達。単位3B・3Cは未着手。
+- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3AはTDDでの実装・自動検証と人間のレビューを経てマージ済み（ユーザー確認）。実アプリの確認は未検証。単位3BはTDDでの実装・自動検証と人間のレビュー承認を完了し、[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み・未マージ。単位3Cは未着手。
 - 対象：Windows、DRM のない EPUB 2・3 の横書きリフロー型。
 - 承認済みの画面：[サンプル](../design/reader-sample.html)、[共通デザイン方針](../FRONTEND_DESIGN.md)。
 
@@ -171,9 +171,11 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 - [x] 計画ファイル提示後、単位3Aの開発開始承認を得る。
 - [x] 単位3Aの実装と自動検証を行い、未検証の実アプリ確認を記録する。
 - [x] 単位3Aの人間のレビューを受け、承認を得る。
-- [ ] 単位3AをTDDで実装・検証し、人間のレビューを受け、PRを作成する。
-- [ ] 単位3Aのマージ後、単位3Bの開始承認を得る。
-- [ ] 単位3Bの表示部品とブラウザ検証を実装し、人間のレビューを受け、PRを作成する。
+- [x] 単位3AをTDDで実装・検証し、人間のレビューを受け、PRを作成・マージする。
+- [x] 単位3Aのマージ後、単位3Bの開始承認を得る。
+- [x] 単位3Bの表示部品とブラウザ検証をTDDで実装・自動検証する。
+- [x] 単位3Bの人間のレビューを受け、承認を得る。
+- [x] 単位3BのPRを作成する（[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4)）。
 - [ ] 単位3Bのマージ後、単位3Cの開始承認を得る。
 - [ ] 単位3Cの画面接続・操作・状態表示をTDDで実装・検証する。
 - [ ] Windowsでの確認結果と、残る未検証を記録する。
@@ -207,7 +209,7 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 - `bun --no-env-file run test`：既存2件成功。
 - `bun --no-env-file run build`：型チェック・フロントエンドのビルド成功。
 - 自動検証はLinuxで実施した。IPCテストは本番と共通の登録処理をTauriのモックランタイムで検証しており、実WebViewの通信・標準ダイアログの動作を示すものではない。リソース応答は通常関数を検証しており、OSごとの専用プロトコル配送は実アプリでの確認が残る。
-- LinuxのGUIディスプレイに接続できず、標準ダイアログ・実WebViewの手動確認は未実施。Windows環境も利用できないため、Windowsの標準ダイアログ・専用URL・実アプリ連携は未検証。この部分を未検証のまま単位3Aの完了・マージ可能とは扱わない。
+- LinuxのGUIディスプレイに接続できず、標準ダイアログ・実WebViewの手動確認は未実施。Windows環境も利用できないため、Windowsの標準ダイアログ・専用URL・実アプリ連携は未検証。ユーザーから単位3Aの実装・マージ完了の確認を受けたため、マージ済みとして記録する。実アプリ確認を実施済みとは扱わない。
 - 単位3Aの変更は予定の10ファイル以内。画面サンプル・共通デザイン方針・単位2のマージ記録は、実装開始前の別の準備作業による変更である。
 - ユーザーは起動画面が初期テンプレートのままであることを確認し、Rust側を実装する単位3Aとしてレビューを承認した。画面は単位3B・3Cで接続する。標準ダイアログ・専用URLの実アプリ確認を実施済みとする承認ではない。
 
@@ -229,3 +231,25 @@ const css = await response.text();
 ```
 
 標準ダイアログ・本文・CSSの取得を確認し、不正ファイル、キャンセル、重複選択、別書籍を開いた後の古い識別子の拒否も確認する。製品版の操作フローへ開発者向けの手順を表示することはしない。確認したOS・WebView2と結果を記録する。
+
+
+### 単位3Bの実装・検証記録（2026-10-07）
+
+- 実装時にPlaywrightのVite用 `webServer`・iframe検証と、Reactの `useLayoutEffect` のクリーンアップ順序をContext7で現行公式資料と照合した。ブラウザAPIはMDNの [CSSStyleSheet.replaceSync](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/replaceSync)、[画像のdecode](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode)、[ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)、[FontFaceSet.ready](https://developer.mozilla.org/en-US/docs/Web/API/FontFaceSet/ready) を確認した。
+- 作業ブランチは `feature/page-view`。基点は取得した最新の `origin/main`（単位3Aをマージした `5332903`）と一致する。変更対象は予定の10ファイル以内。
+- `PageView` は `xhtml`・`chapterPath`・`resourceBase`・0始まりの `page` を受け取り、`onPagination({ page, count })` で準備完了と再配置後のページ位置を通知する。`theme` は明色・暗色を明示でき、省略時はOS設定を使用する。取得・解析・画像デコードの失敗は `onError`、本文のキーボード操作は `onKeyDown` から親へ通知する。
+- 本文は `sandbox="allow-same-origin"` のiframeに配置し、スクリプト実行を許可しない。XHTMLを解析して許可した要素・属性だけを再構築し、イベント属性・リンク先・フォーム・埋め込み・外部参照を除去する。本文専用CSPでもスクリプト・外部通信・外部フォント・フォーム・子フレームを制限する。書籍内リンクの移動は単位4まで無効とする。
+- 書籍内CSSは親側で取得してブラウザのCSSOMで解析し、本文の子要素に限定して適用する。太字・斜体・文字装飾・整列・控えめな余白・罫線と、単一の書籍内背景画像を扱う。余白等の長さは0〜40pxまたは0〜2em/remに制限し、負の値・割合・計算式・変数を採用しない。フォントサイズ・固定寸法・書字方向・表示や位置の制御・生成コンテンツ・アニメーションは書籍から採用せず、読書用スタイルを優先する。`@import`・`@font-face`・CSSの入れ子等は対応範囲に含めない。書籍内CSS全仕様の互換性は保証しないという計画内での実装上の限定である。
+- 章内画像は章パス、CSSの背景画像はCSS自身のURLから相対参照を解決する。外部・絶対パス・アーカイブ外・特殊URL・不正なエンコードは許可しない。CSS画像も取得と実デコードを確認し、欠落を黙って無視しない。
+- 固定高さの横方向段組みで表示し、ページ番号は範囲内に制限する。PNG・JPEG・GIFのデコードと `document.fonts.ready` の後でページ数を確定する。本文の最初の文字位置、または画像要素を保持し、`ResizeObserver` とフォント準備の変化後に、その位置を含むページへ戻す。
+- 古い章のCSS取得は中断し、古い文書の読み込みイベントを識別子で除外する。画像準備途中に以前の文書が完了通知を出す競合も再現し、文書・コールバックの更新とクリーンアップを `useLayoutEffect` で揃えて修正した。
+- RED：ページ数・範囲制限・本文位置の判定、相対参照の解決、ページ分割の未実装、縮小後の位置喪失、暗色テーマの未適用、危険な要素の残存、CSS取得失敗の未通知、CSS背景画像の未解決、構造要素の本文欠落をテストで確認した。Chromiumの共有ライブラリ不足と、アプリが生成するCSPを誤って除去対象に含めたテストの不備は修正し、機能のREDには数えていない。
+- GREEN：単体テストとChromiumのブラウザテストが成功した。画像のデコード前に準備完了を誤通知する競合を修正した後、該当テストを10回繰り返して全て成功した。
+- REFACTOR：本文・属性とCSSの再構築、参照解決、本文位置の計測、文書の準備・終了処理の責務を整理し、コードを整形した。整理後に全単体・ブラウザテストと型チェック・ビルドを再実行した。
+- `bun --no-env-file run test`：既存2件と追加5件の全7件成功。
+- `bun --no-env-file run test:browser`：Chromiumで14件成功。800×600・1280×800、明暗テーマ、本文とルビの各文字の座標、末尾への移動、縮小後の文字・画像位置、PNG・JPEG・GIFの実デコード、CSSと安全な本文、取得・デコード失敗、古いCSS応答、本文キーイベントを検証した。幾何情報は実ブラウザの結果を使用し、固定値のモックでは置き換えていない。
+- `bun --no-env-file run build`：型チェック・本番ビルド成功。アプリへの接続は単位3Cのため、本番の起動画面は引き続き既存画面である。
+- 開発依存関係は `@playwright/test 1.63.0` に固定。対応するChromiumは `153.0.8010.12`（Playwright revision `1243`）。本番用依存関係は追加していない。
+- このLinux環境ではChromiumの共有ライブラリが不足し、公式 `install-deps` は管理者認証が必要で実行できなかった。必要なDebianパッケージを `/tmp` に取得・展開し、`LD_LIBRARY_PATH=/tmp/reader-browser-libs/usr/lib/x86_64-linux-gnu bun --no-env-file run test:browser` で実ブラウザ検証を実施した。システムのライブラリは変更していない。
+- 再実行は `bun --no-env-file install --frozen-lockfile`、`bun --no-env-file x playwright install chromium`、OSのChromium依存を準備したうえで `bun --no-env-file run test:browser` を使用する。fixtureは `/src/features/reader/page-fixture.html` で確認でき、本番のエントリーポイントには組み込まない。テスト出力は `/tmp/refined-epub-reader-playwright` に保存する。
+- WindowsのWebView2・Tauri実アプリとの接続と、Windowsの明朝体での表示は未検証。LinuxのChromium上の成功をWindowsの実機確認済みとは扱わない。ユーザーによる人間のレビュー承認は完了した。[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み。マージは未実施。
