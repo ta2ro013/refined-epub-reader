@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Shiori ライブラリ</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121A17}
+a{color:#ECE8DE}a:hover{color:#FFFFFF}
+button{font:inherit;color:inherit}
+input::placeholder{color:#8E958C}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #121A17; color: #ECE8DE; font-family: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', sans-serif; font-size: 14px">
+
+<aside style="flex: 1 1 220px; max-width: 100%; box-sizing: border-box; padding: 28px 18px; display: flex; flex-direction: column; gap: 32px; background: #0E1512; border-right: 1px solid rgba(236,232,222,0.08)">
+<div style="display: flex; align-items: baseline; gap: 10px; padding: 0 10px">
+<span style="font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 28px; letter-spacing: 0.04em">栞</span>
+<span style="font-size: 12px; letter-spacing: 0.32em; color: #A9AFA6">SHIORI</span>
+</div>
+
+<nav aria-label="ライブラリ" style="display: flex; flex-direction: column; gap: 2px">
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; background: rgba(236,232,222,0.07); text-decoration: none; font-weight: 500">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4z"></path><path d="M10 4h4v16h-4z"></path><path d="M16.5 5.2l3.8-1 3.2 15.5-3.8 1z" transform="translate(-3 0)"></path></svg>
+<span style="flex: 1">本棚</span><span style="font-size: 12px; color: #A9AFA6">142</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: #C9CCC4">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"></path><path d="M12 6v13.5"></path></svg>
+<span style="flex: 1">読書中</span><span style="font-size: 12px; color: #A9AFA6">3</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: #C9CCC4">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+<span style="flex: 1">読了</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: #C9CCC4">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"></path><path d="M14 7l3 3"></path></svg>
+<span style="flex: 1">ハイライトとメモ</span></a>
+</nav>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 12px 6px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: #A9AFA6">コレクション</span>
+<button type="button" aria-label="コレクションを追加" style="width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #A9AFA6; display: grid; place-items: center; cursor: pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+</div>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; text-decoration: none; color: #C9CCC4"><span style="width: 8px; height: 8px; border-radius: 2px; background: {{accent}}"></span>明治・大正の文豪</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; text-decoration: none; color: #C9CCC4"><span style="width: 8px; height: 8px; border-radius: 2px; background: #7FA393"></span>夜に読む短編</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; text-decoration: none; color: #C9CCC4"><span style="width: 8px; height: 8px; border-radius: 2px; background: #8C93C2"></span>旅のおともに</a>
+</div>
+
+<div style="margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(236,232,222,0.08); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #A9AFA6"><span>今日の読書</span><span style="color: #ECE8DE">22 / 30 分</span></div>
+<div style="height: 3px; border-radius: 2px; background: rgba(236,232,222,0.1)"><div style="width: 73%; height: 100%; border-radius: 2px; background: {{accent}}"></div></div>
+</div>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(20px, 4vw, 56px) 64px; display: flex; flex-direction: column; gap: 44px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; justify-content: space-between">
+<label style="flex: 0 1 420px; min-width: 220px; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: 10px; background: rgba(236,232,222,0.06); border: 1px solid rgba(236,232,222,0.08); color: #A9AFA6">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">本を検索</span>
+<input type="search" placeholder="書名・著者・本文を検索" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: #ECE8DE; font: inherit">
+<span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(236,232,222,0.16)">⌘K</span>
+</label>
+<div style="display: flex; gap: 8px; align-items: center">
+<button type="button" style="height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid rgba(236,232,222,0.14); background: transparent; cursor: pointer; display: flex; align-items: center; gap: 8px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>EPUB を追加</button>
+</div>
+</header>
+
+<section aria-labelledby="continue-h" style="display: flex; flex-wrap: wrap; gap: clamp(24px, 4vw, 56px); align-items: stretch; padding: clamp(24px, 3vw, 40px); border-radius: 18px; background: #18221E; border: 1px solid rgba(236,232,222,0.07)">
+<div style="flex: 0 0 auto; width: 188px; aspect-ratio: 2 / 3; border-radius: 4px 10px 10px 4px; background: #E9E4D6; color: #1B2420; box-shadow: 0 30px 50px -20px rgba(0,0,0,0.7), inset 6px 0 0 rgba(0,0,0,0.08); display: flex; flex-direction: row-reverse; justify-content: space-between; padding: 22px 18px; box-sizing: border-box">
+<div style="writing-mode: vertical-rl; font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 40px; letter-spacing: 0.2em">草枕</div>
+<div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center">
+<span style="width: 18px; height: 18px; border-radius: 50%; background: {{accent}}"></span>
+<span style="writing-mode: vertical-rl; font-family: 'Shippori Mincho B1', serif; font-size: 13px; letter-spacing: 0.3em">夏目漱石</span>
+</div>
+</div>
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<span style="font-size: 12px; letter-spacing: 0.28em; color: {{accent}}">続きから読む</span>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 id="continue-h" style="margin: 0; font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: clamp(34px, 4vw, 52px); letter-spacing: 0.06em; line-height: 1.2">草枕</h1>
+<span style="color: #A9AFA6">夏目漱石 · 第一章 · 残り約 12 分</span>
+</div>
+<blockquote style="margin: 0; max-width: 34em; font-family: 'Shippori Mincho B1', serif; font-size: 19px; line-height: 1.9; color: #D7D3C8; text-wrap: pretty">「智に働けば角が立つ。情に棹させば流される。意地を通せば窮屈だ。とかくに人の世は住みにくい。」</blockquote>
+<div style="display: flex; align-items: center; gap: 14px; max-width: 34em">
+<div style="flex: 1; height: 4px; border-radius: 2px; background: rgba(236,232,222,0.1)"><div style="width: 38%; height: 100%; border-radius: 2px; background: {{accent}}"></div></div>
+<span style="font-size: 13px; color: #A9AFA6">38%</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto">
+<a href="Reader.dc.html" style="display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 12px; background: #ECE8DE; color: #121A17; text-decoration: none; font-weight: 700">読書を再開
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<button type="button" style="height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid rgba(236,232,222,0.14); background: transparent; cursor: pointer">目次</button>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="all-h" style="display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px">
+<h2 id="all-h" style="margin: 0; font-family: 'Shippori Mincho B1', serif; font-weight: 700; font-size: 26px; letter-spacing: 0.08em">本棚</h2>
+<div role="group" aria-label="並び替え" style="display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: rgba(236,232,222,0.06)">
+<sc-for list="{{sorts}}" as="s" hint-placeholder-count="3">
+<button type="button" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="height: 36px; padding: 0 14px; border: 0; border-radius: 7px; cursor: pointer; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr)); gap: 36px 28px">
+<sc-for list="{{books}}" as="b" hint-placeholder-count="10">
+<a href="Reader.dc.html" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none">
+<div style="aspect-ratio: 2 / 3; border-radius: 3px 8px 8px 3px; background: {{b.bg}}; color: {{b.fg}}; box-shadow: 0 18px 30px -16px rgba(0,0,0,0.75), inset 5px 0 0 rgba(0,0,0,0.12); display: flex; flex-direction: row-reverse; justify-content: space-between; padding: 16px 14px; box-sizing: border-box; overflow: hidden">
+<div style="writing-mode: vertical-rl; font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 26px; letter-spacing: 0.16em; line-height: 1.1">{{b.title}}</div>
+<div style="writing-mode: vertical-rl; align-self: flex-end; font-family: 'Shippori Mincho B1', serif; font-size: 11px; letter-spacing: 0.3em; opacity: 0.85">{{b.author}}</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+<span style="font-weight: 500; color: #ECE8DE">{{b.title}}</span>
+<span style="font-size: 12px; color: {{b.statusColor}}">{{b.status}}</span>
+</div>
+<span style="font-size: 12px; color: #A9AFA6">{{b.author}}</span>
+<div style="height: 2px; border-radius: 1px; background: rgba(236,232,222,0.08)"><div style="width: {{b.pct}}; height: 100%; border-radius: 1px; background: {{accent}}"></div></div>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E2603A","options":["#E2603A","#D9A441","#7FA393","#8C93C2"]},"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#E2603A';
+    const st = this.state || {};
+    const sort = st.sort || 'recent';
+    const sorts = [
+      { id: 'recent', label: '最近読んだ順' },
+      { id: 'title', label: '書名' },
+      { id: 'author', label: '著者' }
+    ].map((s) => ({
+      ...s,
+      on: s.id === sort ? 'true' : 'false',
+      bg: s.id === sort ? '#ECE8DE' : 'transparent',
+      fg: s.id === sort ? '#121A17' : '#C9CCC4',
+      pick: () => this.setState({ sort: s.id })
+    }));
+    const raw = [
+      { title: '草枕', author: '夏目漱石', bg: '#E9E4D6', fg: '#1B2420', p: 38, order: 1 },
+      { title: '銀河鉄道の夜', author: '宮沢賢治', bg: '#1F2A4A', fg: '#E7DFC6', p: 72, order: 2 },
+      { title: '檸檬', author: '梶井基次郎', bg: '#D9B437', fg: '#2A2310', p: 0, order: 3, isNew: true },
+      { title: '山月記', author: '中島敦', bg: '#3C4A3F', fg: '#E9E4D6', p: 100, order: 4 },
+      { title: '羅生門', author: '芥川龍之介', bg: '#7A2E22', fg: '#F0E6D8', p: 100, order: 5 },
+      { title: 'たけくらべ', author: '樋口一葉', bg: '#C9A9B5', fg: '#2B1E24', p: 14, order: 6 },
+      { title: '走れメロス', author: '太宰治', bg: '#2E2B28', fg: '#E2603A', p: 0, order: 7 },
+      { title: 'こころ', author: '夏目漱石', bg: '#DCD6C6', fg: '#7A2E22', p: 100, order: 8 },
+      { title: '高瀬舟', author: '森鷗外', bg: '#3B5560', fg: '#EDE7D9', p: 0, order: 9 },
+      { title: '風立ちぬ', author: '堀辰雄', bg: '#A9B9A4', fg: '#1D2A22', p: 0, order: 10 }
+    ];
+    const sorted = raw.slice().sort((a, b) =>
+      sort === 'title' ? a.title.localeCompare(b.title, 'ja') :
+      sort === 'author' ? a.author.localeCompare(b.author, 'ja') : a.order - b.order);
+    const books = sorted.map((b) => ({
+      ...b,
+      pct: b.p + '%',
+      status: b.isNew ? '新着' : b.p === 100 ? '読了' : b.p > 0 ? b.p + '%' : '未読',
+      statusColor: b.isNew ? accent : '#A9AFA6'
+    }));
+    return { accent, sorts, books };
+  }
+}
+</script>
+</body>
+</html>

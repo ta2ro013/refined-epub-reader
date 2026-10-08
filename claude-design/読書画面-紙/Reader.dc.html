@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Shiori 読書画面</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:0.8}
+button{font:inherit;color:inherit}
+rt{font-size:0.5em}
+</style>
+</helmet>
+<div style="height: 100vh; min-height: 640px; display: flex; flex-direction: column; background: {{t.bg}}; color: {{t.fg}}; font-family: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', sans-serif; font-size: 14px; position: relative; overflow: hidden">
+
+<header style="flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 20px; border-bottom: 1px solid {{t.line}}">
+<div style="display: flex; align-items: center; gap: 4px">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; color: {{t.muted}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>本棚</a>
+<button type="button" onClick="{{toggleToc}}" aria-pressed="{{tocPressed}}" aria-label="目次" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: {{tocBg}}; color: {{t.muted}}; display: grid; place-items: center; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"></path><circle cx="4.5" cy="6" r="1"></circle><circle cx="4.5" cy="12" r="1"></circle><circle cx="4.5" cy="18" r="1"></circle></svg></button>
+</div>
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-family: 'Shippori Mincho B1', serif; font-weight: 700; font-size: 15px; letter-spacing: 0.12em">草枕</span>
+<span style="font-size: 12px; color: {{t.muted}}">夏目漱石 · 一</span>
+</div>
+<div style="display: flex; align-items: center; gap: 4px">
+<button type="button" aria-label="本文を検索" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: {{t.muted}}; display: grid; place-items: center; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg></button>
+<button type="button" aria-label="しおりを挟む" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: {{t.accent}}; display: grid; place-items: center; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4z"></path></svg></button>
+<button type="button" onClick="{{toggleSettings}}" aria-pressed="{{settingsPressed}}" aria-label="表示設定" style="height: 44px; min-width: 44px; padding: 0 10px; border: 0; border-radius: 10px; background: {{settingsBg}}; color: {{t.fg}}; display: grid; place-items: center; cursor: pointer; font-family: 'Shippori Mincho B1', serif; font-weight: 700; font-size: 17px">Aa</button>
+</div>
+</header>
+
+<div style="flex: 1 1 auto; min-height: 0; display: flex">
+<sc-if value="{{tocOpen}}" hint-placeholder-val="{{ false }}">
+<nav aria-label="目次" style="flex: 0 0 240px; box-sizing: border-box; padding: 24px 16px; border-right: 1px solid {{t.line}}; overflow-y: auto; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: {{t.muted}}; padding: 0 12px 12px">目次</span>
+<sc-for list="{{chapters}}" as="c" hint-placeholder-count="13">
+<a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; background: {{c.bg}}; color: {{c.fg}}; font-family: 'Shippori Mincho B1', serif; font-size: 15px">
+<span>{{c.label}}</span><span style="font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 11px; color: {{t.muted}}">{{c.page}}</span></a>
+</sc-for>
+</nav>
+</sc-if>
+
+<main style="flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 24px 12px">
+<button type="button" aria-label="次のページ" style="flex: 0 0 auto; width: 48px; height: 120px; border: 0; border-radius: 12px; background: transparent; color: {{t.muted}}; display: grid; place-items: center; cursor: pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+
+<article style="flex: 1 1 auto; min-width: 0; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden">
+<div style="writing-mode: {{wm}}; width: 100%; max-width: {{maxW}}; height: {{textH}}; box-sizing: border-box; padding: 0 12px; overflow: hidden; font-family: {{family}}; font-size: {{fs}}px; line-height: 1.95; letter-spacing: 0.06em; text-align: justify; color: {{t.fg}}; font-feature-settings: 'palt' 0">
+<h2 style="margin: 0 0 0 1.6em; font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 1.5em; letter-spacing: 0.3em; color: {{t.fg}}">一</h2>
+<p style="margin: 0; text-indent: 1em">山路を登りながら、こう考えた。</p>
+<p style="margin: 0; text-indent: 1em"><mark style="background: {{t.mark}}; color: inherit; padding: 0.08em 0; border-radius: 2px">智に働けば角が立つ。情に<ruby>棹<rt>さお</rt></ruby>させば流される。</mark>意地を通せば窮屈だ。とかくに人の世は住みにくい。</p>
+<p style="margin: 0; text-indent: 1em">住みにくさが<ruby>高<rt>こう</rt></ruby>じると、安い所へ引き越したくなる。どこへ越しても住みにくいと<ruby>悟<rt>さと</rt></ruby>った時、詩が生れて、<ruby>画<rt>え</rt></ruby>が出来る。</p>
+<p style="margin: 0; text-indent: 1em">人の世を作ったものは神でもなければ鬼でもない。やはり向う三軒両隣りにちらちらするただの人である。ただの人が作った人の世が住みにくいからとて、越す国はあるまい。あれば人でなしの国へ行くばかりだ。人でなしの国は人の世よりもなお住みにくかろう。</p>
+<p style="margin: 0; text-indent: 1em">越す事のならぬ世が住みにくければ、住みにくい所をどれほどか、<ruby>寛容<rt>くつろげ</rt></ruby>て、<ruby>束<rt>つか</rt></ruby>の間の命を、束の間でも住みよくせねばならぬ。ここに詩人という天職が出来て、ここに画家という使命が<ruby>降<rt>くだ</rt></ruby>る。あらゆる芸術の士は人の世を<ruby>長閑<rt>のどか</rt></ruby>にし、人の心を豊かにするが故に<ruby>尊<rt>たっ</rt></ruby>とい。</p>
+<p style="margin: 0; text-indent: 1em">住みにくき世から、住みにくき<ruby>煩<rt>わずら</rt></ruby>いを引き抜いて、ありがたい世界をまのあたりに写すのが詩である、画である。あるは音楽と彫刻である。</p>
+</div>
+</article>
+
+<button type="button" aria-label="前のページ" style="flex: 0 0 auto; width: 48px; height: 120px; border: 0; border-radius: 12px; background: transparent; color: {{t.muted}}; display: grid; place-items: center; cursor: pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+</main>
+</div>
+
+<footer style="flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 14px 28px 18px; font-size: 12px; color: {{t.muted}}">
+<span style="flex: 0 0 auto">一 · この章の残り 約 12 分</span>
+<div style="flex: 1 1 240px; display: flex; flex-direction: row-reverse; align-items: center; height: 20px; position: relative">
+<div style="position: absolute; left: 0; right: 0; top: 9px; height: 2px; border-radius: 1px; background: {{t.line}}"></div>
+<div style="position: absolute; right: 0; top: 9px; width: 38%; height: 2px; border-radius: 1px; background: {{t.accent}}"></div>
+<div style="position: absolute; right: calc(38% - 6px); top: 4px; width: 12px; height: 12px; border-radius: 50%; background: {{t.bg}}; border: 2px solid {{t.accent}}; box-sizing: border-box"></div>
+</div>
+<span style="flex: 0 0 auto">24 / 186</span>
+</footer>
+
+<sc-if value="{{settingsOpen}}" hint-placeholder-val="{{ false }}">
+<section aria-label="表示設定" style="position: absolute; top: 64px; right: 20px; width: 320px; max-width: calc(100% - 40px); box-sizing: border-box; padding: 20px; border-radius: 16px; background: {{t.panel}}; border: 1px solid {{t.line}}; box-shadow: 0 24px 60px -20px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 20px; color: {{t.fg}}">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: {{t.muted}}">テーマ</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{themes}}" as="o" hint-placeholder-count="3">
+<button type="button" onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="height: 64px; border-radius: 10px; border: 2px solid {{o.ring}}; background: {{o.bg}}; color: {{o.fg}}; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px">
+<span style="font-family: 'Shippori Mincho B1', serif; font-weight: 700; font-size: 18px">あ</span>
+<span style="font-size: 11px">{{o.label}}</span></button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: {{t.muted}}">文字サイズ</span>
+<div style="display: flex; align-items: center; gap: 8px">
+<button type="button" onClick="{{smaller}}" aria-label="文字を小さく" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid {{t.line}}; background: transparent; cursor: pointer; font-family: 'Shippori Mincho B1', serif; font-size: 13px">あ</button>
+<div style="flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 6px">
+<sc-for list="{{steps}}" as="d" hint-placeholder-count="6">
+<span style="width: {{d.size}}; height: {{d.size}}; border-radius: 50%; background: {{d.color}}"></span>
+</sc-for>
+</div>
+<button type="button" onClick="{{larger}}" aria-label="文字を大きく" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid {{t.line}}; background: transparent; cursor: pointer; font-family: 'Shippori Mincho B1', serif; font-size: 20px">あ</button>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: {{t.muted}}">組方向</span>
+<div role="group" aria-label="組方向" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 10px; background: {{t.well}}">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
+<button type="button" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="height: 40px; border: 0; border-radius: 7px; cursor: pointer; background: {{m.bg}}; color: {{m.fg}}; font-weight: 500">{{m.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 11px; letter-spacing: 0.24em; color: {{t.muted}}">書体</span>
+<div role="group" aria-label="書体" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 10px; background: {{t.well}}">
+<sc-for list="{{fonts}}" as="f" hint-placeholder-count="2">
+<button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="height: 40px; border: 0; border-radius: 7px; cursor: pointer; background: {{f.bg}}; color: {{f.fg}}; font-family: {{f.family}}; font-size: 15px">{{f.label}}</button>
+</sc-for>
+</div>
+</div>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["paper","kinari","night"],"default":"paper"},"settingsOpen":{"editor":"boolean","default":false},"tocOpen":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const pick = (k, d) => (st[k] !== undefined ? st[k] : d);
+    const themeId = pick('theme', this.props.theme ?? 'paper');
+    const settingsOpen = pick('settingsOpen', this.props.settingsOpen ?? false);
+    const tocOpen = pick('tocOpen', this.props.tocOpen ?? false);
+    const vertical = pick('vertical', true);
+    const mincho = pick('mincho', true);
+    const step = pick('step', 2);
+
+    const THEMES = {
+      paper:  { label: '紙',   bg: '#EEEDE6', fg: '#1F1D1A', muted: '#625E56', line: 'rgba(31,29,26,0.12)', accent: '#B8432A', mark: 'rgba(226,96,58,0.20)', panel: '#F7F6F1', well: 'rgba(31,29,26,0.06)', active: '#1F1D1A', activeFg: '#F7F6F1' },
+      kinari: { label: '生成', bg: '#E6DCC6', fg: '#2B2418', muted: '#5F5442', line: 'rgba(43,36,24,0.14)', accent: '#A63E22', mark: 'rgba(196,90,40,0.22)', panel: '#EFE7D5', well: 'rgba(43,36,24,0.07)', active: '#2B2418', activeFg: '#EFE7D5' },
+      night:  { label: '夜',   bg: '#121A17', fg: '#D9D4C7', muted: '#9AA096', line: 'rgba(217,212,199,0.12)', accent: '#E98A68', mark: 'rgba(233,138,104,0.24)', panel: '#1B2521', well: 'rgba(217,212,199,0.07)', active: '#D9D4C7', activeFg: '#121A17' }
+    };
+    const t = THEMES[themeId] || THEMES.paper;
+    const sizes = [15, 17, 19, 21, 24, 27];
+    const fs = sizes[step];
+
+    const seg = (on) => ({ bg: on ? t.active : 'transparent', fg: on ? t.activeFg : t.fg, on: on ? 'true' : 'false' });
+
+    const themes = Object.keys(THEMES).map((id) => {
+      const x = THEMES[id];
+      return { label: x.label, bg: x.bg, fg: x.fg, ring: id === themeId ? t.accent : x.line, on: id === themeId ? 'true' : 'false', pick: () => this.setState({ theme: id }) };
+    });
+    const modes = [
+      { label: '縦書き', v: true }, { label: '横書き', v: false }
+    ].map((m) => ({ ...m, ...seg(m.v === vertical), pick: () => this.setState({ vertical: m.v }) }));
+    const minchoStack = "'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+    const gothicStack = "'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', sans-serif";
+    const fonts = [
+      { label: '明朝', v: true, family: minchoStack }, { label: 'ゴシック', v: false, family: gothicStack }
+    ].map((f) => ({ ...f, ...seg(f.v === mincho), pick: () => this.setState({ mincho: f.v }) }));
+    const steps = sizes.map((s, i) => ({ size: (6 + i * 2) + 'px', color: i === step ? t.accent : t.line }));
+
+    const kanji = ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三'];
+    const pages = [1, 22, 37, 52, 66, 79, 93, 104, 118, 131, 147, 160, 172];
+    const chapters = kanji.map((k, i) => ({ label: k, page: String(pages[i]), bg: i === 0 ? t.well : 'transparent', fg: i === 0 ? t.accent : t.fg }));
+
+    return {
+      t, themes, modes, fonts, steps, chapters, fs,
+      settingsOpen, tocOpen,
+      settingsPressed: settingsOpen ? 'true' : 'false',
+      tocPressed: tocOpen ? 'true' : 'false',
+      settingsBg: settingsOpen ? t.well : 'transparent',
+      tocBg: tocOpen ? t.well : 'transparent',
+      wm: vertical ? 'vertical-rl' : 'horizontal-tb',
+      maxW: vertical ? '1080px' : '36em',
+      textH: vertical ? 'min(620px, 100%)' : '100%',
+      family: mincho ? minchoStack : gothicStack,
+      toggleSettings: () => this.setState({ settingsOpen: !settingsOpen }),
+      toggleToc: () => this.setState({ tocOpen: !tocOpen }),
+      smaller: () => this.setState({ step: Math.max(0, step - 1) }),
+      larger: () => this.setState({ step: Math.min(sizes.length - 1, step + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>
