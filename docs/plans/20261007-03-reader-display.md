@@ -2,7 +2,7 @@
 
 - 作成日：2026-10-07。
 - 計画・本番用依存関係の追加承認日：2026-10-07。
-- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3AはTDDでの実装・自動検証と人間のレビューを経てマージ済み（ユーザー確認）。実アプリの確認は未検証。単位3BはTDDでの実装・自動検証と人間のレビュー承認を完了し、[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み・未マージ。単位3Cは未着手。
+- 状態：詳細計画・作業分割と本番用依存関係 `tauri-plugin-dialog` の追加は承認済み。ページ送り方式と画面デザインも承認済み。単位3AはTDDでの実装・自動検証と人間のレビューを経てマージ済み（ユーザー確認）。実アプリの確認は未検証。単位3BはTDDでの実装・自動検証と人間のレビュー承認を完了し、[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) でマージ済み。単位3Cは画面接続の実装・自動検証を完了し、人間のレビュー承認済み・誤判定修正はmainへ統合済み。[PR #6](https://github.com/ta2ro013/refined-epub-reader/pull/6) を作成済み・未マージ。Windows実アプリは未検証で、単位3C全体の完了条件は未達。
 - 対象：Windows、DRM のない EPUB 2・3 の横書きリフロー型。
 - 承認済みの画面：[サンプル](../design/reader-sample.html)、[共通デザイン方針](../FRONTEND_DESIGN.md)。
 
@@ -114,7 +114,7 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 | --- | --- | --- | --- |
 | 3A（10ファイル） | 標準ファイル選択、書籍セッション、本文・リソース提供 | `src-tauri/src/reader.rs`、`src-tauri/src/reader_tests.rs`、`src-tauri/src/lib.rs`、`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock`、`src-tauri/tauri.conf.json`、`src-tauri/capabilities/default.json`、`docs/PRODUCT_REQUIREMENTS.md`、本計画、親計画（01） | マージ済みの単位2 |
 | 3B（10ファイル） | 本文表示部品、改ページ・位置保持、ブラウザ検証 | `src/features/reader/PageView.tsx`、`src/features/reader/PageView.css`、`src/features/reader/pagination.ts`、`src/features/reader/pagination.test.ts`、`src/features/reader/PageView.browser.spec.ts`、`src/features/reader/page-fixture.html`、`playwright.config.ts`、`package.json`、`bun.lock`、本計画 | 単位3A。表示テスト用 fixture をViteで提供し、Tauri連携と切り離した組版検証も行う |
-| 3C（10ファイル） | アプリへの接続、状態表示、ページ操作 | `src/App.tsx`、`src/App.css`、`src/features/reader/Reader.tsx`、`src/features/reader/book.ts`、`src/features/reader/Reader.test.tsx`、`src/features/reader/book.test.ts`、`src/test/smoke.test.tsx`、`docs/FRONTEND_DESIGN.md`、本計画、親計画（01） | 単位3A・3B |
+| 3C（10ファイル） | アプリへの接続、状態表示、ページ操作 | `src/App.tsx`、`src/App.css`、`src/features/reader/Reader.tsx`、`src/features/reader/book.ts`、`src/features/reader/Reader.test.tsx`、`src/features/reader/book.test.ts`、`src/test/smoke.test.tsx`、`src/features/reader/PageView.css`、本計画、親計画（01） | 単位3A・3B |
 
 本計画作成時の文書・サンプル更新は実装とは別の準備作業として扱う。単位3Aでは既存の起動画面と挨拶コマンドを維持し、単位3Cで画面を読書UIに置き換える。使用しなくなる挨拶コマンドの削除で単位3Cが10ファイルを超える場合は、その整理を別の作業単位にする。
 
@@ -176,10 +176,15 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 - [x] 単位3Bの表示部品とブラウザ検証をTDDで実装・自動検証する。
 - [x] 単位3Bの人間のレビューを受け、承認を得る。
 - [x] 単位3BのPRを作成する（[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4)）。
-- [ ] 単位3Bのマージ後、単位3Cの開始承認を得る。
-- [ ] 単位3Cの画面接続・操作・状態表示をTDDで実装・検証する。
-- [ ] Windowsでの確認結果と、残る未検証を記録する。
-- [ ] 単位3Cの人間のレビューを受け、PRを作成する。
+- [x] 単位3Bをマージし、作業ブランチを削除する。
+- [x] 単位3Bのマージ後、単位3Cの開始承認を得る。
+- [x] 単位3Cの画面接続・操作・状態表示をTDDで実装・自動検証する。
+- [x] Windowsで未検証の項目・理由・再実行方法を記録する。
+- [ ] Windows実アプリで標準ダイアログ・本文・ページ操作・サイズ変更・再選択を確認し、結果を記録する。
+- [x] 単位3Cの人間のレビューを受け、承認を得る。
+- [x] 誤判定修正のmain統合を確認する（[PR #5](https://github.com/ta2ro013/refined-epub-reader/pull/5)）。
+- [x] 単位3CのPRを作成する（[PR #6](https://github.com/ta2ro013/refined-epub-reader/pull/6)）。
+- [ ] ユーザーが単位3CのPRをマージする。
 - [ ] 親計画の単位4「目次・章移動」の詳細計画に進む。
 
 ### 調査資料・計画作成時の検証状態
@@ -215,7 +220,7 @@ JavaScript用のdialog・描画・アイコン・アニメーションの本番�
 
 #### 単位3Aの実アプリ確認の再実行方法
 
-Windowsの開発環境でフロントエンドを `bun --no-env-file run dev` で起動し、`cargo run --manifest-path src-tauri/Cargo.toml` でアプリを起動する。単位3Cまでは起動画面に書籍選択ボタンがないため、開発者ツールで `window.__TAURI_INTERNALS__.invoke` を使用して境界を確認する。
+Windowsの開発環境でフロントエンドを `bun --no-env-file run dev` で起動し、`cargo run --manifest-path src-tauri/Cargo.toml` でアプリを起動する。以下は単位3A時点の境界確認手順である。単位3Cでは「書籍を開く」から操作できる。境界だけを再確認する場合は、開発者ツールで `window.__TAURI_INTERNALS__.invoke` を使用して境界を確認する。
 
 ```javascript
 const book = await window.__TAURI_INTERNALS__.invoke("select_book");
@@ -252,4 +257,52 @@ const css = await response.text();
 - 開発依存関係は `@playwright/test 1.63.0` に固定。対応するChromiumは `153.0.8010.12`（Playwright revision `1243`）。本番用依存関係は追加していない。
 - このLinux環境ではChromiumの共有ライブラリが不足し、公式 `install-deps` は管理者認証が必要で実行できなかった。必要なDebianパッケージを `/tmp` に取得・展開し、`LD_LIBRARY_PATH=/tmp/reader-browser-libs/usr/lib/x86_64-linux-gnu bun --no-env-file run test:browser` で実ブラウザ検証を実施した。システムのライブラリは変更していない。
 - 再実行は `bun --no-env-file install --frozen-lockfile`、`bun --no-env-file x playwright install chromium`、OSのChromium依存を準備したうえで `bun --no-env-file run test:browser` を使用する。fixtureは `/src/features/reader/page-fixture.html` で確認でき、本番のエントリーポイントには組み込まない。テスト出力は `/tmp/refined-epub-reader-playwright` に保存する。
-- WindowsのWebView2・Tauri実アプリとの接続と、Windowsの明朝体での表示は未検証。LinuxのChromium上の成功をWindowsの実機確認済みとは扱わない。ユーザーによる人間のレビュー承認は完了した。[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) を作成済み。マージは未実施。
+- WindowsのWebView2・Tauri実アプリとの接続と、Windowsの明朝体での表示は未検証。LinuxのChromium上の成功をWindowsの実機確認済みとは扱わない。ユーザーによる人間のレビュー承認は完了した。[PR #4](https://github.com/ta2ro013/refined-epub-reader/pull/4) でマージ済み。ユーザーがリモートの作業ブランチを削除し、ローカルの作業ブランチも整理した。
+
+
+### 単位3Cの実装上の調整
+
+- 承認済みの本文幅（最大36em）を画面へ適用すると、本文iframeの幅が通常画面でも既存CSSの850px以下となり、本文が常に18pxになった。Chromiumで通常画面の20pxを期待する検証が18pxで失敗することを確認した。通常画面では784pxの表示部品に720px（20px×36em）の本文、狭い画面では688pxの表示部品に648px（18px×36em）の本文が収まるよう、表示部品の狭い幅の境界を760pxに調整する。共通デザイン方針・完了条件は変更せず、実装上の整合を取る。
+- 共通デザイン方針の新たな変更はないため、単位3Cの変更予定ファイル `docs/FRONTEND_DESIGN.md` を `src/features/reader/PageView.css` に置き換え、予定の10ファイル以内で実装する。未使用の挨拶コマンドやテンプレート画像の削除は別の整理作業に残す。
+
+
+### 単位3Cの実装・検証記録（2026-10-07）
+
+- ユーザーが単位3Cの開始を承認した。作業ブランチは最新 `origin/main`（単位3Bのマージコミット `94d6b1b`）から作成した `feature/reader-screen`。単位3Bのマージ記録も引き継いだ。変更は予定を調整した10ファイル以内。
+- `App` を承認済みサンプルの読書画面へ置き換え、`Reader` から `select_book` → `read_chapter({ bookId, index: 0 })` → `PageView` を接続した。Rustの `BookInfo` のフィールド名をそのまま利用し、`resource_base` を変更せず渡す。章名は現在の章パスに一致する目次ラベル、本文見出し、既定の「最初の章」の順で求める。
+- `book.ts` はTauriのIPC境界・書籍情報と章の型・エラー案内を担当する。読み取り不能・破損・非対応・リソース欠落の4分類を別々に案内し、期限切れ・重複選択・内部エラー等も再選択へ誘導する。不明なエラーの内容やファイルパスは画面へ出さない。本文の解析失敗は破損、表示部品が通知する画像・CSS等の準備失敗はリソースの読み込み失敗として案内する。
+- 書籍選択・章取得・画像やフォントを含むページ分割の準備完了まで開く操作を無効にし、同期的な重複要求も防ぐ。キャンセル時は既存の本文・ページ・エラー案内を保つ。選択の成功後に旧本文を外し、新しいタイトルと旧本文を組み合わせない。表示準備が成功するまでページ位置を確定表示しない。
+- 前後ボタンと左右キーは章内の範囲に制限する。ページ位置は「現在ページ / この章のページ数」として表示する。本文iframeのキーも共通処理へ渡し、入力欄・編集可能領域・修飾キー・合成入力・他の操作が処理済みのイベントではページを移動しない。iframeの別realmの要素も判定できるよう、親側の `instanceof Element` に依存しない。
+- 読み込み要求と現在の表示に別々の識別子を持ち、旧章の表示通知・エラー・キーイベントと、アンマウントした画面への非同期応答を無視する。再選択をキャンセルした後の本文の再配置通知は有効に保ち、旧本文の通知で新たな選択の操作ロックを解除しない。
+- 読み込みを `role="status"`、エラーを `role="alert"`、ページ位置を `aria-live="polite"` で通知する。準備中・エラー中の本文は寸法を保ったまま非表示かつ `inert` とし、キャンセルのために本文を再マウントしない。操作完了・キャンセル・失敗後には開くボタンへフォーカスを戻し、各操作のフォーカスを明示する。
+- 配色・書体・余白・操作部は既存の共通方針を維持した。通常画面の本文は20px・行間2・最大720px、狭い画面は18px・行間2・最大648pxとし、どちらも36em。本文面と操作部は同じ明暗テーマを使用し、装飾アニメーションや本番用依存関係は追加していない。
+- Tauriのinvoke・引数・Resultエラー・IPCモックはContext7で現行公式資料と照合した。境界とApp接続の単体テストは公式 `mockIPC` を用い、Rustの標準ダイアログそのものを検証したとは扱わない。Readerの状態遷移テストでは表示部品の準備完了通知を制御し、組版の幾何情報は既存のChromiumテストに委ねる。
+- RED：書籍選択と最初の章取得の未実装、目次ラベル取得とエラー分類の未実装、画面の接続不足・開く操作の無効化不足、左右キーとiframeキーの未実装、初期テンプレートが残ること、通常画面が18pxになることを意図した失敗として確認した。テストの構文・隠れた準備用モックへの操作・型の不備は修正し、機能のREDには数えていない。
+- GREEN：境界6件・Reader17件・App接続2件・既存のページロジック5件の全30件が成功。表示部品のChromiumテスト14件も成功した。
+- REFACTOR：IPC境界と画面状態の責務を分離し、ページ操作・キー処理を安定したコールバックとして共通化した。イベントの登録と解除を整理し、コードを整形した。整理後の単体テスト・ブラウザ検証・型チェック・ビルドは成功した。
+- `bun --no-env-file run test`：全30件成功。
+- `bun --no-env-file run build`：型チェック・本番ビルド成功。読書画面と表示部品が本番エントリーポイントに組み込まれる。
+- `LD_LIBRARY_PATH=/tmp/reader-browser-libs/usr/lib/x86_64-linux-gnu bun --no-env-file run test:browser`：全14件成功。表示部品の幅判定を調整した後も、本文・ルビ・画像・安全性・再配置の検証が通る。
+- 実ブラウザでApp・Reader・PageViewをつなぎ、1280×800・800×600の未選択・準備・本文・エラー画面、20px/18pxの切り替え、iframeにフォーカスがある左右キー、修飾キー、前後ボタン、キャンセル後のページ保持、縮小後の本文位置、暗色、エラー後の別書籍の先頭表示を確認した。実際のReact StrictModeと表示部品を使い、IPCのみ差し替えた。スクリプトは作業環境の `/tmp/reader-screen-check.ts`、画面画像は `/tmp/reader-screen-empty.png`・`/tmp/reader-screen-light.png`・`/tmp/reader-screen-dark.png`・`/tmp/reader-screen-error.png` に保存した。
+- `cargo run --manifest-path src-tauri/Cargo.toml`：Rustアプリのビルドは成功したが、起動時のGTK初期化に失敗し終了した（exit 101）。Linuxの実WebView・標準ダイアログとの操作確認は未実施。Rustコード・依存関係は変更していない。
+- Windows環境を利用できず、Windowsの標準ダイアログ・専用リソースURL・WebView2表示・明朝体・キーボード操作・サイズ変更・再選択は未検証。Linux Chromiumでの検証やIPCモックをWindows実機の成功とは扱わない。したがって単位3C全体の完了条件は未達で、人間のレビューとWindowsの確認が残る。
+
+#### 単位3CのWindows確認の再実行方法
+
+1. Windowsの開発環境で `bun --no-env-file install --frozen-lockfile` を実行する。
+2. 別々のターミナルで `bun --no-env-file run dev` と `cargo run --manifest-path src-tauri/Cargo.toml` を実行する。既存Tauri CLIの起動設定はBunの `.env` 自動読み込みを無効にする引数を含まないため、この確認では明示的に無効化したViteと直接のCargo起動を使用する。
+3. 「書籍を開く」から自作EPUB 2・3を選択し、タイトル・最初の章・ルビ・PNG/JPEG/GIF・CSSを確認する。
+4. 前後ボタンと左右キーで最後まで移動する。本文へフォーカスを移した状態でも操作し、先頭・末尾で範囲外へ進まないことを確認する。
+5. 画面を広げたり狭めたりし、読んでいた本文・画像が表示ページに残ることと、本文に縦スクロールが不要なことを確認する。OSの明暗設定を切り替え、本文と操作部が揃うことも確認する。
+6. 選択キャンセルで本文・ページを保持すること、別書籍で先頭へ戻ること、不正・非対応・欠落リソースのエラー後も選び直せることを確認する。準備中の重複操作、キーボードのフォーカスと支援技術からの読み込み・エラー通知も確認する。
+7. 書籍内のスクリプト・外部参照を含む自作データで、スクリプト実行・外部通信・アプリ操作が生じないことを確認し、WindowsとWebView2のバージョン・結果・残る未検証を記録する。
+
+
+### 実EPUBでの開く操作の確認（2026-10-07）
+
+- 共通CSSに含まれる未使用の縦書きクラスを非対応と誤判定する問題を、別単位の [修正計画（04）](20261007-04-horizontal-css-detection.md) でTDDにより修正した。ユーザーから修正後の実アプリで対象EPUBを開けたとの確認を受けた。
+- この確認は対象書籍を開く操作についての報告であり、Windows実機・全ページの表示品質・前後と左右キー・サイズ変更・明暗・再選択等の一連の完了条件を確認済みとは扱わない。単位3C全体の未検証と人間のレビュー待ちは維持する。
+
+- ユーザーが単位3Cと誤判定修正の変更全体をレビュー承認した。誤判定修正を先に別PRでmainへ統合し、その後に単位3Cの基点を揃えてPRを作成する。Windowsの残る未検証は維持する。
+
+- [PR #5](https://github.com/ta2ro013/refined-epub-reader/pull/5) のmainへのマージを確認し、3Cブランチを最新main（`09f80db`）へ載せ直した。修正ブランチとmainのファイル内容が一致することも確認し、検証済みコードの変更はない。
