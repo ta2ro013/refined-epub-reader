@@ -1,5 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
 import { clampPage, pageAt, pageCount, resourceUrl } from "./pagination";
+import {
+  fontStacks,
+  type ReaderTheme,
+  type ReaderFont,
+} from "./ReaderSettings";
 import readerStyles from "./PageView.css?inline";
 
 export type PageViewProps = {
@@ -7,7 +12,9 @@ export type PageViewProps = {
   chapterPath: string;
   resourceBase: string;
   page: number;
-  theme?: "light" | "dark";
+  theme?: ReaderTheme | "light" | "dark";
+  fontSize?: number;
+  fontFamily?: ReaderFont;
   onPagination: (result: { page: number; count: number }) => void;
   onError: (error: Error) => void;
   onKeyDown?: (event: KeyboardEvent) => void;
@@ -262,6 +269,23 @@ function firstAnchor(
   return null;
 }
 
+function applyDisplaySettings(doc: Document, props: PageViewProps) {
+  const root = doc.documentElement;
+  root.dataset.theme = props.theme ?? "auto";
+  if (props.fontSize !== undefined) {
+    const size = [15, 17, 19, 21, 24, 27].includes(props.fontSize)
+      ? props.fontSize
+      : 19;
+    root.style.setProperty("--reader-font-size", `${size}px`);
+  } else root.style.removeProperty("--reader-font-size");
+  if (props.fontFamily)
+    root.style.setProperty(
+      "--reader-font-family",
+      fontStacks[props.fontFamily],
+    );
+  else root.style.removeProperty("--reader-font-family");
+}
+
 export function PageView(props: PageViewProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const latest = useRef(props);
@@ -297,7 +321,7 @@ export function PageView(props: PageViewProps) {
         return;
       const doc = iframe.contentDocument;
       const main = doc.getElementById("reader-body")!;
-      doc.documentElement.dataset.theme = latest.current.theme ?? "auto";
+      applyDisplaySettings(doc, latest.current);
       const click = (event: Event) => {
         if ((event.target as Element).closest("a")) event.preventDefault();
       };
@@ -329,7 +353,7 @@ export function PageView(props: PageViewProps) {
           latest.current.onPagination({ page: current, count });
         };
         const layout = () => {
-          doc.documentElement.dataset.theme = latest.current.theme ?? "auto";
+          applyDisplaySettings(doc, latest.current);
           main.style.transform = "none";
           stride = iframe.clientWidth;
           count = pageCount(main.scrollWidth + inset() * 2, stride);
@@ -387,7 +411,7 @@ export function PageView(props: PageViewProps) {
   }, [props.page]);
   useLayoutEffect(() => {
     controls.current?.layout();
-  }, [props.theme]);
+  }, [props.theme, props.fontSize, props.fontFamily]);
   return (
     <iframe
       ref={frame}

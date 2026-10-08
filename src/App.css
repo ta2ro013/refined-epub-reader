@@ -1,33 +1,11 @@
 :root {
-  color-scheme: light dark;
-  --canvas: #f0f1f2;
-  --paper: #fafafa;
-  --ink: #23282d;
-  --muted: #59636d;
-  --line: #d8dde1;
-  --accent: #215e53;
-  --on-accent: #fafafa;
-  --selection: #e0ece8;
   font:
-    14px/1.6 "Segoe UI",
-    "Yu Gothic UI",
-    "Meiryo",
+    14px/1.6 "Zen Kaku Gothic New",
+    "Hiragino Sans",
+    "Yu Gothic",
     sans-serif;
-  color: var(--ink);
-  background: var(--canvas);
   font-synthesis: none;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --canvas: #20252a;
-    --paper: #282e34;
-    --ink: #e8ecef;
-    --muted: #b4bec7;
-    --line: #46515b;
-    --accent: #9bd6c4;
-    --on-accent: #20252a;
-    --selection: #344b44;
-  }
+  background: #eeede6;
 }
 * {
   box-sizing: border-box;
@@ -41,36 +19,80 @@ body {
 }
 #root {
   height: 100dvh;
-  padding: 24px;
+}
+[data-theme="paper"],
+[data-theme="light"] {
+  color-scheme: light;
+  --paper: #eeede6;
+  --ink: #1f1d1a;
+  --muted: #625e56;
+  --line: rgba(31, 29, 26, 0.12);
+  --accent: #b8432a;
+  --panel: #f7f6f1;
+  --well: rgba(31, 29, 26, 0.06);
+  --active: #1f1d1a;
+  --active-ink: #f7f6f1;
+}
+[data-theme="kinari"] {
+  color-scheme: light;
+  --paper: #e6dcc6;
+  --ink: #2b2418;
+  --muted: #5f5442;
+  --line: rgba(43, 36, 24, 0.14);
+  --accent: #a63e22;
+  --panel: #efe7d5;
+  --well: rgba(43, 36, 24, 0.07);
+  --active: #2b2418;
+  --active-ink: #efe7d5;
+}
+[data-theme="night"],
+[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121a17;
+  --ink: #d9d4c7;
+  --muted: #9aa096;
+  --line: rgba(217, 212, 199, 0.12);
+  --accent: #e98a68;
+  --panel: #1b2521;
+  --well: rgba(217, 212, 199, 0.07);
+  --active: #d9d4c7;
+  --active-ink: #121a17;
 }
 button {
   font: inherit;
+  color: inherit;
   cursor: pointer;
   white-space: nowrap;
 }
 button:focus-visible,
 .page-view:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 button:disabled {
   cursor: default;
-  opacity: 0.55;
+  opacity: 0.45;
+}
+button:not(:disabled):hover {
+  background: var(--well);
 }
 .reader-window {
+  position: relative;
   display: grid;
-  grid-template-rows: 64px minmax(0, 1fr) 56px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
   height: 100%;
   min-width: 0;
+  color: var(--ink);
   background: var(--paper);
-  border: 1px solid var(--line);
 }
 .reader-toolbar {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 0 24px;
+  gap: 12px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--line);
+  min-height: 65px;
 }
 .reader-book-title {
   flex: 1;
@@ -79,33 +101,74 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
-  font-weight: 600;
+  font:
+    700 15px/1.6 "Shippori Mincho B1",
+    "Hiragino Mincho ProN",
+    "Yu Mincho",
+    serif;
+  letter-spacing: 0.12em;
 }
 .reader-open {
-  color: var(--on-accent);
-  background: var(--accent);
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-weight: 600;
+  order: -1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
 }
-.reader-open:not(:disabled):hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.reader-settings-toggle {
+  height: 44px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font:
+    700 17px "Shippori Mincho B1",
+    "Yu Mincho",
+    serif;
 }
-.reader-open:not(:disabled):active {
-  transform: translateY(1px);
+.reader-settings-toggle[aria-expanded="true"] {
+  background: var(--well);
+}
+.reader-stage {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 12px;
+  min-height: 0;
 }
 .reader-content {
   position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
+}
+.reader-page-button {
+  grid-row: 1;
+  height: 120px;
+  width: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+}
+.reader-page-previous {
+  grid-column: 1;
+}
+.reader-page-next {
+  grid-column: 3;
 }
 .reader-document {
   width: 100%;
   height: 100%;
-  max-width: 784px;
+  max-width: 748px;
   margin: 0 auto;
 }
 .reader-document-muted {
@@ -116,14 +179,15 @@ button:disabled {
   inset: 0;
   max-width: 520px;
   overflow: auto;
-  margin: 0 auto;
+  margin: auto;
   padding: 72px 24px;
 }
 .reader-state h2 {
-  font-size: 24px;
-  line-height: 1.5;
-  margin: 0 0 12px;
-  font-weight: 600;
+  font:
+    700 26px/1.5 "Shippori Mincho B1",
+    "Yu Mincho",
+    serif;
+  margin: 0 0 16px;
 }
 .reader-state p {
   color: var(--muted);
@@ -135,7 +199,8 @@ button:disabled {
   margin-top: 40px;
 }
 .reader-loading-lines span {
-  height: 12px;
+  height: 10px;
+  border-radius: 3px;
   background: var(--line);
 }
 .reader-loading-lines span:last-child {
@@ -144,73 +209,223 @@ button:disabled {
 .reader-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 24px;
-  border-top: 1px solid var(--line);
+  gap: 24px;
+  min-height: 52px;
+  padding: 14px 28px 18px;
   color: var(--muted);
   font-size: 12px;
 }
 .reader-chapter {
   min-width: 0;
+  max-width: 35%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.reader-navigation {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
+.reader-progress {
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line);
 }
-.reader-navigation span {
-  min-width: 4em;
-  text-align: center;
+.reader-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.reader-navigation {
+  flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
-.reader-navigation button {
+/* The only overlay layer is the modeless settings panel. */
+.reader-settings {
+  position: absolute;
+  z-index: 1;
+  top: 72px;
+  right: 20px;
+  width: 320px;
+  max-width: calc(100% - 40px);
+  max-height: calc(100% - 92px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.settings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.settings-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.settings-close {
+  padding: 4px 8px;
   border: 0;
   border-radius: 6px;
-  padding: 6px 8px;
-  background: transparent;
-  color: var(--accent);
-  font-weight: 600;
-}
-.reader-navigation button:disabled {
   color: var(--muted);
-  font-weight: 400;
+  background: transparent;
+  font-size: 12px;
 }
-.reader-navigation button:not(:disabled):hover {
-  background: var(--selection);
+.reader-settings fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
-@media (max-width: 850px) {
-  #root {
-    padding: 16px;
+.reader-settings legend {
+  margin-bottom: 10px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+}
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.theme-choice {
+  height: 64px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+}
+.theme-choice span {
+  font:
+    700 18px "Shippori Mincho B1",
+    "Yu Mincho",
+    serif;
+}
+.theme-choice[aria-pressed="true"] {
+  border-color: var(--reader-accent);
+}
+.theme-choice:not(:disabled):hover {
+  background: var(--paper);
+}
+.reader-settings {
+  --reader-accent: var(--accent);
+}
+.size-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.size-options button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  font:
+    13px "Shippori Mincho B1",
+    "Yu Mincho",
+    serif;
+}
+.size-options button:last-child {
+  font-size: 20px;
+}
+.size-steps {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+}
+.size-steps span {
+  display: block;
+  border-radius: 50%;
+  background: var(--line);
+}
+.size-steps .selected {
+  background: var(--accent);
+}
+.size-value {
+  display: block;
+  margin-top: 6px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.font-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--well);
+}
+.font-options button {
+  height: 40px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 15px;
+}
+.font-options button[aria-pressed="true"] {
+  background: var(--active);
+  color: var(--active-ink);
+}
+@media (max-width: 600px) {
+  .reader-toolbar {
+    padding: 8px 12px;
+    gap: 8px;
   }
-  .reader-toolbar,
+  .reader-open {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .reader-stage {
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+    gap: 0;
+    padding: 12px 0;
+  }
+  .reader-page-button {
+    width: 32px;
+    height: 88px;
+  }
   .reader-footer {
-    padding: 0 16px;
     gap: 12px;
-  }
-  .reader-document {
-    max-width: 688px;
-  }
-  .reader-navigation {
-    gap: 12px;
+    padding: 12px 16px;
   }
   .reader-state {
-    padding: 48px 24px;
+    padding: 40px 8px;
+  }
+  .reader-state h2 {
+    font-size: 22px;
+  }
+  .reader-settings {
+    right: 12px;
+    max-width: calc(100% - 24px);
   }
 }
-@media (max-width: 420px) {
-  #root {
-    padding: 0;
+@media (max-width: 360px) {
+  .reader-toolbar {
+    flex-wrap: wrap;
   }
-  .reader-footer {
-    gap: 8px;
-    padding: 0 8px;
+  .reader-book-title {
+    flex-basis: calc(100% - 56px);
+    order: -2;
   }
-  .reader-navigation {
-    gap: 4px;
+  .reader-settings-toggle {
+    order: -1;
   }
 }

@@ -457,3 +457,179 @@ test("CSS画像の欠落を通知する", async ({ page }) => {
   });
   await expect(page.locator("#status")).toHaveText(/^エラー:/);
 });
+
+for (const [theme, background, color] of [
+  ["paper", "rgb(238, 237, 230)", "rgb(31, 29, 26)"],
+  ["kinari", "rgb(230, 220, 198)", "rgb(43, 36, 24)"],
+  ["night", "rgb(18, 26, 23)", "rgb(217, 212, 199)"],
+]) {
+  test(`${theme}: 本文と操作部に使う表示設定を適用し、テーマ変更でリソースを再取得しない`, async ({
+    page,
+  }) => {
+    let requests = 0;
+    await page.route("**/book/1/OPS/test.css", (route) => {
+      requests++;
+      return route.fulfill({
+        contentType: "text/css",
+        body: "p{font-style:italic}",
+      });
+    });
+    await page.goto("/src/features/reader/page-fixture.html");
+    await configure(page, {
+      xhtml:
+        '<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="test.css"/></head><body><p>表示設定の本文</p></body></html>',
+    });
+    await expect(page.locator("#status")).toHaveText("1 / 1");
+    const previousRequests = requests;
+    await configure(page, { theme, fontSize: 24, fontFamily: "gothic" });
+    const main = page.frameLocator("iframe").locator("#reader-body");
+    await expect(main).toHaveCSS("font-size", "24px");
+    await expect(main).toHaveCSS("color", color);
+    await expect(page.frameLocator("iframe").locator("html")).toHaveCSS(
+      "background-color",
+      background,
+    );
+    expect(
+      await main.evaluate((el) => getComputedStyle(el).fontFamily),
+    ).toContain("Zen Kaku Gothic New");
+    expect(requests).toBe(previousRequests);
+  });
+}
+
+test("文字サイズ・書体変更後も読んでいた文字を表示する", async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 600 });
+  await page.goto("/src/features/reader/page-fixture.html");
+  await expect(page.locator("#status")).toHaveText(/^1 \/ \d+$/);
+  for (let i = 0; i < 4; i++) await page.locator("#next").click();
+  const anchor = await page
+    .frameLocator("iframe")
+    .locator("#reader-body")
+    .evaluate((main) => {
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (!node.parentElement?.id.startsWith("p")) continue;
+        for (
+          let offset = 0;
+          offset < (node.textContent?.length ?? 0);
+          offset++
+        ) {
+          const range = document.createRange();
+          range.setStart(node, offset);
+          range.setEnd(node, offset + 1);
+          const r = range.getBoundingClientRect();
+          if (
+            r.left >= 20 &&
+            r.right <= innerWidth - 20 &&
+            r.top >= 20 &&
+            r.bottom <= innerHeight - 20
+          )
+            return { id: node.parentElement.id, offset };
+        }
+      }
+      throw Error("現在の文字が見つからない");
+    });
+  // configure intentionally resets fixture navigation. Batch the current page
+  // back into the render to model Reader, which keeps its page during settings changes.
+  await page.evaluate(() => {
+    const fixture = Reflect.get(window, "readerFixture");
+    fixture.configure({ fontSize: 27, fontFamily: "gothic", theme: "paper" });
+    fixture.go(4);
+  });
+  await expect(page.frameLocator("iframe").locator("#reader-body")).toHaveCSS(
+    "font-size",
+    "27px",
+  );
+  await expect
+    .poll(() =>
+      page
+        .frameLocator("iframe")
+        .locator(`#${anchor.id}`)
+        .evaluate((el, offset) => {
+          const range = document.createRange();
+          range.setStart(el.firstChild!, offset);
+          range.setEnd(el.firstChild!, offset + 1);
+          const r = range.getBoundingClientRect();
+          return (
+            r.left >= 0 &&
+            r.right <= innerWidth &&
+            r.top >= 0 &&
+            r.bottom <= innerHeight
+          );
+        }, anchor.offset),
+    )
+    .toBe(true);
+});
+
+for (const width of [1440, 360]) {
+  test(`${width}px: 読書画面の3テーマ・設定パネル・ページ送りを利用できる`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.addInitScript(() => {
+      Reflect.set(window, "__TAURI_INTERNALS__", {
+        invoke: async (command: string) => {
+          if (command === "select_book")
+            return {
+              id: "1",
+              title: "森の物語",
+              chapters: ["OPS/chapter.xhtml"],
+              resource_base: location.origin + "/book/1/",
+              toc: [],
+            };
+          if (command === "read_chapter")
+            return (
+              '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><h1>朝の道</h1>' +
+              Array.from(
+                { length: 30 },
+                (_, i) =>
+                  `<p id="p${i}">第${i + 1}段落。${"静かな森の木漏れ日の中で物語を読む。".repeat(10)}<ruby>読書<rt>どくしょ</rt></ruby>。</p>`,
+              ).join("") +
+              "</body></html>"
+            );
+          throw Error(command);
+        },
+      });
+    });
+    await page.goto("/");
+    await page.getByRole("button", { name: "書籍を開く" }).click();
+    await expect(page.getByLabel("この章のページ位置")).toHaveText(
+      /^1 \/ \d+$/,
+    );
+    await page.getByRole("button", { name: "次へ", exact: true }).click();
+    await expect(page.getByLabel("この章のページ位置")).toHaveText(/^2 \/ /);
+    await page.getByRole("button", { name: "表示設定", exact: true }).click();
+    const panel = page.getByRole("dialog", { name: "表示設定" });
+    for (const [theme, label, background] of [
+      ["paper", "紙", "rgb(238, 237, 230)"],
+      ["kinari", "生成", "rgb(230, 220, 198)"],
+      ["night", "夜", "rgb(18, 26, 23)"],
+    ]) {
+      await page.getByRole("button", { name: label, exact: true }).click();
+      await expect(page.getByRole("main", { name: "EPUBリーダー" })).toHaveCSS(
+        "background-color",
+        background,
+      );
+      await expect(page.frameLocator("iframe").locator("html")).toHaveCSS(
+        "background-color",
+        background,
+      );
+      const rect = await panel.boundingBox();
+      expect(rect!.x).toBeGreaterThanOrEqual(0);
+      expect(rect!.x + rect!.width).toBeLessThanOrEqual(width);
+      expect(rect!.y + rect!.height).toBeLessThanOrEqual(800);
+      await page.screenshot({ path: `/tmp/reader-ui-${width}-${theme}.png` });
+    }
+    await page.getByRole("button", { name: "文字を大きく" }).click();
+    await expect(page.frameLocator("iframe").locator("#reader-body")).toHaveCSS(
+      "font-size",
+      "21px",
+    );
+    await page.keyboard.press("Escape");
+    await expect(panel).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "表示設定", exact: true }),
+    ).toBeFocused();
+    await page.screenshot({ path: `/tmp/reader-ui-${width}-reading.png` });
+  });
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PageView } from "./PageView";
+import { ReaderSettings, defaultSettings } from "./ReaderSettings";
 import {
   asBookFailure,
   readFirstChapter,
@@ -11,6 +12,13 @@ import {
 
 type Reading = { info: BookInfo; chapter: Chapter; version: number };
 export function Reader() {
+  const [settings, setSettings] = useState(defaultSettings);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsButton = useRef<HTMLButtonElement>(null);
+  function closeSettings() {
+    setSettingsOpen(false);
+    settingsButton.current?.focus();
+  }
   const [reading, setReading] = useState<Reading | null>(null);
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
@@ -128,7 +136,11 @@ export function Reader() {
     return () => document.removeEventListener("keydown", key);
   }, [handleKey]);
   return (
-    <main className="reader-window" aria-label="EPUBリーダー">
+    <main
+      className="reader-window"
+      aria-label="EPUBリーダー"
+      data-theme={settings.theme}
+    >
       <header className="reader-toolbar">
         <h1 className="reader-book-title" title={reading?.info.title}>
           {reading?.info.title || "EPUB Reader"}
@@ -142,69 +154,140 @@ export function Reader() {
         >
           書籍を開く
         </button>
+        <button
+          ref={settingsButton}
+          className="reader-settings-toggle"
+          type="button"
+          aria-label="表示設定"
+          aria-expanded={settingsOpen}
+          aria-controls="reader-settings"
+          onClick={() =>
+            settingsOpen ? closeSettings() : setSettingsOpen(true)
+          }
+        >
+          Aa
+        </button>
       </header>
-      <section className="reader-content" aria-label="読書領域">
-        {reading && (
-          <div
-            className={`reader-document${canRead ? "" : " reader-document-muted"}`}
-            inert={!canRead}
-            aria-hidden={!canRead}
+      {settingsOpen && (
+        <ReaderSettings
+          value={settings}
+          onChange={setSettings}
+          onClose={closeSettings}
+        />
+      )}
+      <div className="reader-stage">
+        {reading && ready && !failure && (
+          <button
+            type="button"
+            className="reader-page-button reader-page-previous"
+            aria-label="前へ"
+            disabled={!canRead || position.page === 0}
+            onClick={() => move(-1)}
           >
-            <PageView
-              key={reading.version}
-              xhtml={reading.chapter.xhtml}
-              chapterPath={reading.chapter.path}
-              resourceBase={reading.info.resource_base}
-              page={position.page}
-              onPagination={(result) => paginate(reading.version, result)}
-              onError={(reason) => displayError(reading.version, reason)}
-              onKeyDown={(event) => handleKey(event, reading.version)}
-            />
-          </div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
         )}
-        {busy ? (
-          <section
-            className="reader-state"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <h2>書籍を読み込んでいます</h2>
-            <p>本文を準備しています。</p>
-            <div className="reader-loading-lines" aria-hidden="true">
-              <span />
-              <span />
-              <span />
+        <section className="reader-content" aria-label="読書領域">
+          {reading && (
+            <div
+              className={`reader-document${canRead ? "" : " reader-document-muted"}`}
+              inert={!canRead}
+              aria-hidden={!canRead}
+            >
+              <PageView
+                key={reading.version}
+                xhtml={reading.chapter.xhtml}
+                chapterPath={reading.chapter.path}
+                resourceBase={reading.info.resource_base}
+                page={position.page}
+                theme={settings.theme}
+                fontSize={settings.fontSize}
+                fontFamily={settings.fontFamily}
+                onPagination={(result) => paginate(reading.version, result)}
+                onError={(reason) => displayError(reading.version, reason)}
+                onKeyDown={(event) => handleKey(event, reading.version)}
+              />
             </div>
-          </section>
-        ) : failure ? (
-          <section className="reader-state" role="alert" aria-atomic="true">
-            <h2>この書籍を開けませんでした</h2>
-            <p>{failure.message}</p>
-            <p>「書籍を開く」から、もう一度選んでください。</p>
-          </section>
-        ) : !reading ? (
-          <section className="reader-state">
-            <h2>読む本を選ぶ</h2>
-            <p>「書籍を開く」から、EPUBファイルを選んでください。</p>
-            <p>EPUB 2・3の横書きリフロー型に対応します。</p>
-          </section>
-        ) : null}
-      </section>
+          )}
+          {busy ? (
+            <section
+              className="reader-state"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <h2>書籍を読み込んでいます</h2>
+              <p>本文を準備しています。</p>
+              <div className="reader-loading-lines" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+            </section>
+          ) : failure ? (
+            <section className="reader-state" role="alert" aria-atomic="true">
+              <h2>この書籍を開けませんでした</h2>
+              <p>{failure.message}</p>
+              <p>「書籍を開く」から、もう一度選んでください。</p>
+            </section>
+          ) : !reading ? (
+            <section className="reader-state">
+              <h2>読む本を選ぶ</h2>
+              <p>「書籍を開く」から、EPUBファイルを選んでください。</p>
+              <p>EPUB 2・3の横書きリフロー型に対応します。</p>
+            </section>
+          ) : null}
+        </section>
+        {reading && ready && !failure && (
+          <button
+            type="button"
+            className="reader-page-button reader-page-next"
+            aria-label="次へ"
+            disabled={!canRead || position.page >= position.count - 1}
+            onClick={() => move(1)}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+      </div>
       <footer className="reader-footer">
         {reading && ready && !failure && (
           <>
             <span className="reader-chapter" title={reading.chapter.title}>
               {reading.chapter.title}
             </span>
+            <div className="reader-progress" aria-hidden="true">
+              <span
+                style={{
+                  width: `${((position.page + 1) / position.count) * 100}%`,
+                }}
+              />
+            </div>
             <nav className="reader-navigation" aria-label="章内のページ移動">
-              <button
-                type="button"
-                disabled={!canRead || position.page === 0}
-                onClick={() => move(-1)}
-              >
-                前へ
-              </button>
               <span
                 aria-label="この章のページ位置"
                 aria-live="polite"
@@ -212,13 +295,6 @@ export function Reader() {
               >
                 {position.page + 1} / {position.count}
               </span>
-              <button
-                type="button"
-                disabled={!canRead || position.page >= position.count - 1}
-                onClick={() => move(1)}
-              >
-                次へ
-              </button>
             </nav>
           </>
         )}

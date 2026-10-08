@@ -26,10 +26,9 @@ body {
   column-width: calc(100vw - 64px) !important;
   column-gap: 64px !important;
   column-fill: auto !important;
-  font:
-    20px/2 "Yu Mincho",
-    "Hiragino Mincho ProN",
-    serif !important;
+  font: var(--reader-font-size, 20px)/1.95
+    var(--reader-font-family, "Yu Mincho", "Hiragino Mincho ProN", serif) !important;
+  letter-spacing: 0.06em !important;
 }
 #reader-body,
 #reader-body * {
@@ -45,7 +44,7 @@ body {
 }
 #reader-body h1,
 #reader-body h2 {
-  font-size: 30px !important;
+  font-size: calc(var(--reader-font-size, 20px) * 1.5) !important;
   line-height: 1.6 !important;
 }
 #reader-body p {
@@ -78,13 +77,29 @@ body {
     width: calc(100vw - 40px) !important;
     column-width: calc(100vw - 40px) !important;
     column-gap: 40px !important;
-    font-size: 18px !important;
+    font-size: var(--reader-font-size, 18px) !important;
   }
   #reader-body h1,
   #reader-body h2 {
-    font-size: 26px !important;
+    font-size: calc(var(--reader-font-size, 17.333px) * 1.5) !important;
   }
   #reader-body img {
     max-height: calc(100vh - 40px) !important;
   }
+}
+
+html[data-theme="paper"] {
+  background: #eeede6 !important;
+  color: #1f1d1a !important;
+  color-scheme: light;
+}
+html[data-theme="kinari"] {
+  background: #e6dcc6 !important;
+  color: #2b2418 !important;
+  color-scheme: light;
+}
+html[data-theme="night"] {
+  background: #121a17 !important;
+  color: #d9d4c7 !important;
+  color-scheme: dark;
 }

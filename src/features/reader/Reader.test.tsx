@@ -376,3 +376,53 @@ it("エラー画面からのキャンセルでは、その案内を維持する"
   expect(screen.getByRole("alert").textContent).toBe(message);
   expect(screen.getByRole("button", { name: "書籍を開く" })).toHaveFocus();
 });
+
+describe("表示設定", () => {
+  it("紙・19px・明朝で起動し、設定変更を現在の本文へ反映する", async () => {
+    const user = userEvent.setup();
+    render(<Reader />);
+    await openReady(user);
+    expect(boundary.views[boundary.views.length - 1]).toMatchObject({
+      theme: "paper",
+      fontSize: 19,
+      fontFamily: "mincho",
+    });
+    await user.click(screen.getByRole("button", { name: "表示設定" }));
+    const panel = screen.getByRole("dialog", { name: "表示設定" });
+    expect(panel).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "紙" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await user.click(screen.getByRole("button", { name: "夜" }));
+    await user.click(screen.getByRole("button", { name: "文字を大きく" }));
+    await user.click(screen.getByRole("button", { name: "ゴシック" }));
+    expect(boundary.views[boundary.views.length - 1]).toMatchObject({
+      theme: "night",
+      fontSize: 21,
+      fontFamily: "gothic",
+    });
+    expect(screen.getByRole("main", { name: "EPUBリーダー" })).toHaveAttribute(
+      "data-theme",
+      "night",
+    );
+    expect(boundary.read).toHaveBeenCalledTimes(1);
+  });
+  it("設定パネル内の左右キーでページを動かさず、Escapeで閉じフォーカスを戻す", async () => {
+    const user = userEvent.setup();
+    render(<Reader />);
+    await openReady(user);
+    const toggle = screen.getByRole("button", { name: "表示設定" });
+    await user.click(toggle);
+    expect(screen.getByRole("button", { name: "紙" })).toHaveFocus();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByLabelText("この章のページ位置")).toHaveTextContent(
+      "1 / 3",
+    );
+    await user.keyboard("{Escape}");
+    expect(
+      screen.queryByRole("dialog", { name: "表示設定" }),
+    ).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+  });
+});
